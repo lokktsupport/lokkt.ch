@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOKKT — Book a doctor in seconds. Geneva, Switzerland.</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue: #1A56DB; --blue-dark: #0F3A9E; --blue-light: #EBF2FF;
+  --white: #FFFFFF; --off: #F8FAFD; --light: #F2F5FA;
+  --border: #E4E9F2; --text: #0D1827; --soft: #6B7A90;
+  --lighter: #9AAABB; --green: #059669;
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--text); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  height: 68px; padding: 0 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,0.96); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-home { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.nav-home img { height: 40px; width: 40px; object-fit: contain; }
+.nav-home-text { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+.nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+.nav-links a { font-size: 14px; font-weight: 400; color: var(--soft); text-decoration: none; padding: 8px 16px; border-radius: 8px; transition: color 0.2s, background 0.2s; cursor: pointer; display: block; }
+.nav-links a:hover { color: var(--text); background: var(--light); }
+.nav-btn { background: var(--blue); color: #fff; padding: 10px 22px; border-radius: 9px; font-size: 14px; font-weight: 500; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s, transform 0.15s; }
+.nav-btn:hover { background: var(--blue-dark); transform: translateY(-1px); }
+
+/* ENTRY */
+.entry-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 24px 60px; background: var(--white); }
+.entry-logo-img { height: 180px; object-fit: contain; margin-bottom: 48px; opacity: 0; animation: fadeUp 0.7s ease 0.1s forwards; }
+.entry-q { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 24px; opacity: 0; animation: fadeUp 0.7s ease 0.2s forwards; }
+.entry-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 620px; width: 100%; opacity: 0; animation: fadeUp 0.7s ease 0.3s forwards; }
+.entry-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 20px; padding: 32px 28px; cursor: pointer; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+.entry-card:hover { border-color: var(--blue); transform: translateY(-4px); box-shadow: 0 16px 48px rgba(26,86,219,0.08); }
+.ecard-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--blue-light); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+.ecard-icon svg { width: 22px; height: 22px; stroke: var(--blue); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.ecard-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.25; }
+.ecard-desc { font-size: 13px; font-weight: 300; color: var(--soft); line-height: 1.6; margin-bottom: 20px; }
+.ecard-cta { font-size: 13px; font-weight: 600; color: var(--blue); display: flex; align-items: center; gap: 5px; }
+
+/* HERO */
+.hero { min-height: 100vh; padding: 100px 56px 80px; display: grid; grid-template-columns: 1fr 500px; align-items: center; gap: 40px; position: relative; overflow: hidden; background: var(--white); }
+.hero-map-wrap {
+  width: 100%; height: 100%;
+  position: relative; border-radius: 24px; overflow: hidden;
+  -webkit-mask-image: radial-gradient(ellipse 82% 82% at 50% 50%, black 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 82% 82% at 50% 50%, black 40%, transparent 100%);
+}
+#map-p, #map-c { width: 100%; height: 520px; border-radius: 24px; }
+.hero-content { position: relative; z-index: 1; }
+.hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; color: var(--soft); margin-bottom: 22px; }
+.live { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: blink 2.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
+.hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(34px, 4vw, 54px); font-weight: 800; line-height: 1.06; letter-spacing: -0.03em; color: var(--text); margin-bottom: 20px; }
+.hero h1 em { font-family: 'DM Sans', sans-serif; font-style: italic; font-weight: 300; color: var(--blue); }
+.hero h1 em.g { color: var(--green); }
+.hero-p { font-size: 16px; font-weight: 300; color: var(--soft); line-height: 1.75; max-width: 440px; margin-bottom: 32px; }
+.hero-p strong { color: var(--text); font-weight: 500; }
+.hero-btns { display: flex; gap: 11px; flex-wrap: wrap; margin-bottom: 48px; }
+.btn-p { background: var(--blue); color: #fff; padding: 13px 22px; border-radius: 10px; font-size: 14px; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s, transform 0.15s; }
+.btn-p:hover { background: var(--blue-dark); transform: translateY(-1px); }
+.btn-p.gr { background: var(--green); }
+.btn-p.gr:hover { background: #047857; }
+.btn-o { background: transparent; color: var(--text); padding: 13px 20px; border-radius: 10px; font-size: 14px; font-weight: 400; border: 1.5px solid var(--border); cursor: pointer; font-family: 'DM Sans', sans-serif; display: inline-flex; align-items: center; gap: 8px; transition: border-color 0.2s, transform 0.15s; }
+.btn-o:hover { border-color: var(--text); transform: translateY(-1px); }
+.hero-stats { display: flex; gap: 36px; padding-top: 28px; border-top: 1px solid var(--border); }
+.sv { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; line-height: 1; margin-bottom: 4px; }
+.sv sup { font-size: 14px; color: var(--blue); vertical-align: baseline; }
+.sl { font-size: 12px; color: var(--soft); line-height: 1.4; }
+
+/* Leaflet overrides */
+.leaflet-control-zoom, .leaflet-control-attribution { display: none !important; }
+
+/* Custom pin */
+.lokkt-pin { width: 32px; height: 32px; background: var(--blue); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 2px 8px rgba(26,86,219,0.4); }
+
+/* SECTIONS */
+section { padding: 96px 56px; }
+.inner { max-width: 960px; margin: 0 auto; }
+.stag { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; }
+.sh { font-family: 'Syne', sans-serif; font-size: clamp(26px, 3.5vw, 38px); font-weight: 800; letter-spacing: -0.02em; color: var(--text); line-height: 1.1; margin-bottom: 14px; }
+.sb { font-size: 16px; font-weight: 300; color: var(--soft); line-height: 1.75; max-width: 480px; }
+.how { background: var(--off); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.steps { display: grid; grid-template-columns: repeat(3,1fr); margin-top: 48px; border: 1.5px solid var(--border); border-radius: 14px; overflow: hidden; }
+.step { background: var(--white); padding: 32px 28px; transition: background 0.2s; }
+.step+.step { border-left: 1.5px solid var(--border); }
+.step:hover { background: var(--off); }
+.sn { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--blue); letter-spacing: 0.1em; margin-bottom: 18px; }
+.st { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 9px; line-height: 1.3; }
+.sd { font-size: 13px; font-weight: 300; color: var(--soft); line-height: 1.7; }
+.why { background: var(--white); }
+.wgrid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; margin-top: 48px; }
+.wcard { border: 1.5px solid var(--border); border-radius: 14px; padding: 28px; transition: border-color 0.2s, transform 0.2s; }
+.wcard:hover { border-color: var(--blue); transform: translateY(-2px); }
+.wcard.wide { grid-column: span 2; }
+.wn { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--lighter); letter-spacing: 0.1em; margin-bottom: 12px; }
+.wt { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.wd { font-size: 13px; font-weight: 300; color: var(--soft); line-height: 1.7; }
+.pricing { background: var(--off); border-top: 1px solid var(--border); }
+.pnote { display: inline-flex; align-items: center; gap: 8px; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 100px; padding: 6px 14px; font-size: 13px; color: var(--green); font-weight: 500; margin-top: 14px; margin-bottom: 44px; }
+.pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.pcard { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 28px; position: relative; display: flex; flex-direction: column; }
+.pcard.feat { border-color: var(--blue); }
+.pbadge { position: absolute; top: 18px; right: 18px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); background: var(--blue-light); padding: 4px 10px; border-radius: 100px; }
+.ptier { font-size: 11px; font-weight: 600; color: var(--soft); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.pprice { font-family: 'Syne', sans-serif; font-size: 38px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; line-height: 1; margin-bottom: 4px; }
+.pprice sub { font-size: 13px; font-weight: 400; color: var(--soft); font-family: 'DM Sans', sans-serif; vertical-align: baseline; }
+.pwho { font-size: 13px; color: var(--soft); margin-bottom: 6px; }
+.ppay { font-size: 12px; color: var(--green); font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 5px; }
+.pdiv { height: 1px; background: var(--border); margin-bottom: 18px; }
+.pfeats { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-bottom: 24px; flex: 1; }
+.pfeats li { font-size: 13px; color: var(--soft); display: flex; align-items: flex-start; gap: 9px; line-height: 1.5; }
+.pfeats li.hi { color: var(--text); font-weight: 500; }
+.chk { width: 15px; height: 15px; border-radius: 50%; background: #ECFDF5; border: 1px solid #A7F3D0; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+.chk svg { width: 7px; height: 7px; stroke: var(--green); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.pcta { width: 100%; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; margin-top: auto; transition: transform 0.15s, background 0.2s; }
+.pcta.bl { background: var(--blue); color: #fff; }
+.pcta.bl:hover { background: var(--blue-dark); transform: translateY(-1px); }
+.pcta.gh { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+.pcta.gh:hover { border-color: var(--text); transform: translateY(-1px); }
+.pfooter { text-align: center; font-size: 13px; color: var(--soft); margin-top: 18px; }
+.waitlist { background: var(--white); text-align: center; border-top: 1px solid var(--border); }
+.wi { max-width: 460px; margin: 0 auto; }
+.wcta { display: inline-block; width: 100%; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 500; text-decoration: none; text-align: center; margin-top: 28px; font-family: 'DM Sans', sans-serif; transition: background 0.2s, transform 0.15s; }
+.wcta.bl { background: var(--blue); color: #fff; }
+.wcta.bl:hover { background: var(--blue-dark); transform: translateY(-1px); }
+.wcta.gr { background: var(--green); color: #fff; }
+.wcta.gr:hover { background: #047857; transform: translateY(-1px); }
+.wnote { font-size: 12px; color: var(--soft); margin-top: 10px; }
+footer { background: var(--off); border-top: 1px solid var(--border); padding: 28px 56px; display: flex; align-items: center; justify-content: space-between; }
+.flogo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.flogo img { height: 32px; width: 32px; object-fit: contain; }
+.flogo span { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: var(--text); }
+.flinks { display: flex; gap: 22px; list-style: none; }
+.flinks a { font-size: 13px; color: var(--soft); text-decoration: none; transition: color 0.2s; cursor: pointer; }
+.flinks a:hover { color: var(--text); }
+.fcopy { font-size: 12px; color: var(--soft); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)} }
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.on { opacity: 1; transform: translateY(0); }
+@media(max-width:900px){
+  nav{padding:0 20px;}
+  .nav-links{display:none;}
+  .hero{grid-template-columns:1fr;padding:100px 24px 60px;}
+  .hero-map-wrap{display:none;}
+  section{padding:64px 24px;}
+  .steps{grid-template-columns:1fr;}
+  .step+.step{border-left:none;border-top:1.5px solid var(--border);}
+  .wgrid{grid-template-columns:1fr;}
+  .wcard.wide{grid-column:span 1;}
+  .pgrid{grid-template-columns:1fr;}
+  .entry-cards{grid-template-columns:1fr;}
+  footer{flex-direction:column;gap:16px;text-align:center;padding:28px 24px;}
+  .flinks{flex-wrap:wrap;justify-content:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-home" onclick="showPage('entry')">
+    <img src="icon.png" alt="LOKKT icon">
+    <span class="nav-home-text">LOKKT</span>
+  </div>
+  <ul class="nav-links">
+    <li><a onclick="navScroll('how')">How it works</a></li>
+    <li><a onclick="navScroll('why')">Why LOKKT</a></li>
+    <li><a onclick="showPage('clinic')">For clinics</a></li>
+  </ul>
+  <button class="nav-btn" onclick="navScroll('waitlist')">Join the waitlist</button>
+</nav>
+
+<!-- ENTRY -->
+<div class="page active" id="page-entry">
+  <div class="entry-wrap">
+    <img src="logo.png" alt="LOKKT" class="entry-logo-img">
+    <div class="entry-q">Who are you here for?</div>
+    <div class="entry-cards">
+      <div class="entry-card" onclick="showPage('patient')">
+        <div class="ecard-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="ecard-title">I need an appointment</div>
+        <div class="ecard-desc">Find and book a doctor, dentist, or physio near you in under 60 seconds.</div>
+        <div class="ecard-cta">Find a clinic <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </div>
+      <div class="entry-card" onclick="showPage('clinic')">
+        <div class="ecard-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="ecard-title">I run a clinic or medical practice</div>
+        <div class="ecard-desc">Fill your empty slots and reduce no-shows automatically.</div>
+        <div class="ecard-cta">Join LOKKT <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PATIENT -->
+<div class="page" id="page-patient">
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow"><span class="live"></span> Launching in Geneva, Switzerland</div>
+      <h1>Finding a doctor<br>in Geneva<br>is <em>broken.</em><br>We fixed it.</h1>
+      <p class="hero-p">LOKKT shows you every available appointment at doctors, dentists, and physios near you. <strong>Book in under 60 seconds.</strong> No phone calls. No waiting on hold.</p>
+      <div class="hero-btns">
+        <a href="https://tally.so/r/dWj1oo" target="_blank" class="btn-p">Get early access <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <button class="btn-o" onclick="document.getElementById('p-how').scrollIntoView({behavior:'smooth'})">How it works</button>
+      </div>
+      <div class="hero-stats">
+        <div><div class="sv">60<sup>s</sup></div><div class="sl">Average time<br>to book</div></div>
+        <div><div class="sv">0<sup>CHF</sup></div><div class="sl">Free for<br>patients, always</div></div>
+        <div><div class="sv">24/7</div><div class="sl">Book any time,<br>day or night</div></div>
+      </div>
+    </div>
+    <div class="hero-map-wrap">
+      <div id="map-p"></div>
+    </div>
+  </section>
+
+  <section class="how" id="p-how">
+    <div class="inner">
+      <div class="stag">How it works</div>
+      <div class="sh">Three steps.<br>You're booked.</div>
+      <div class="steps">
+        <div class="step reveal"><div class="sn">01</div><div class="st">Search for what you need</div><div class="sd">Type a symptom, specialty, or clinic name. Filter by language — French, German, Italian, English — or by insurance type.</div></div>
+        <div class="step reveal" style="transition-delay:0.1s"><div class="sn">02</div><div class="st">Tap a time that works for you</div><div class="sd">See real, live availability. Green means today. Tap a slot and it's yours — no phone calls, no waiting for a callback.</div></div>
+        <div class="step reveal" style="transition-delay:0.2s"><div class="sn">03</div><div class="st">Confirmed. You're done.</div><div class="sd">Confirm in one tap and you're booked. You'll get a reminder the day before and two hours before. Reschedule anytime.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="why" id="p-why">
+    <div class="inner">
+      <div class="stag">Why LOKKT</div>
+      <div class="sh">Built for everyone<br>who lives in Geneva.</div>
+      <div class="wgrid">
+        <div class="wcard reveal"><div class="wn">01</div><div class="wt">Made for expats</div><div class="wd">Over 40% of Geneva speaks a language other than French. LOKKT filters by English, German, Italian, Portuguese and more — so you always find someone you can speak to.</div></div>
+        <div class="wcard reveal" style="transition-delay:0.1s"><div class="wn">02</div><div class="wt">Need someone today</div><div class="wd">Same-day availability is always front and centre. One tap and you see every clinic in Geneva with a slot open right now.</div></div>
+        <div class="wcard reveal" style="transition-delay:0.2s"><div class="wn">03</div><div class="wt">Genuinely fast</div><div class="wd">The average person spends over 20 minutes trying to book healthcare in Switzerland. LOKKT does it in under 60 seconds, every time.</div></div>
+        <div class="wcard reveal" style="transition-delay:0.3s"><div class="wn">04</div><div class="wt">Your data stays in Switzerland</div><div class="wd">Built and hosted in Switzerland. We handle scheduling only — no medical records, no clinical data. Fully compliant with Swiss nFADP and GDPR.</div></div>
+        <div class="wcard wide reveal" style="transition-delay:0.4s"><div class="wn">05</div><div class="wt">Free. Always.</div><div class="wd">LOKKT is completely free for patients. No premium tier, no subscription, no hidden cost. Booking your healthcare should never cost you anything beyond the appointment itself.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="waitlist" id="waitlist">
+    <div class="wi">
+      <div class="stag">Get early access</div>
+      <div class="sh" style="margin-bottom:12px;">Be first in Geneva.</div>
+      <p class="sb" style="margin:0 auto;text-align:center;">Sign up and we'll let you know the moment LOKKT launches in your area. Free — and always will be.</p>
+      <a href="https://tally.so/r/dWj1oo" target="_blank" class="wcta bl">Join the patient waitlist</a>
+      <p class="wnote">No spam. One email when we launch near you.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="flogo" onclick="showPage('entry')"><img src="icon.png" alt="LOKKT"><span>LOKKT</span></div>
+    <ul class="flinks">
+      <li><a onclick="document.getElementById('p-how').scrollIntoView({behavior:'smooth'})">How it works</a></li>
+      <li><a onclick="document.getElementById('p-why').scrollIntoView({behavior:'smooth'})">Why LOKKT</a></li>
+      <li><a onclick="showPage('clinic')">For clinics</a></li>
+      <li><a href="#">Privacy</a></li>
+    </ul>
+    <div class="fcopy">© 2025 LOKKT · Geneva, Switzerland</div>
+  </footer>
+</div>
+
+<!-- CLINIC -->
+<div class="page" id="page-clinic">
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow"><span class="live"></span> Founding partners — Geneva</div>
+      <h1>Fill your empty<br>slots. Cut your<br><em class="g">no-shows.</em></h1>
+      <p class="hero-p">Your patients want to book online — they just don't have a good way to do it yet. <strong>LOKKT puts your availability in front of people actively searching for a clinic like yours.</strong> Set up in 30 minutes. You only pay when we launch.</p>
+      <div class="hero-btns">
+        <a href="https://tally.so/r/obd1NP" target="_blank" class="btn-p gr">Join as a founding clinic <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <button class="btn-o" onclick="document.getElementById('c-how').scrollIntoView({behavior:'smooth'})">How it works</button>
+      </div>
+      <div class="hero-stats">
+        <div><div class="sv">30<sup>min</sup></div><div class="sl">Setup time,<br>no IT needed</div></div>
+        <div><div class="sv">40<sup>%</sup></div><div class="sl">Fewer no-shows<br>with reminders</div></div>
+        <div><div class="sv">0<sup>CHF</sup></div><div class="sl">Until LOKKT<br>launches</div></div>
+      </div>
+    </div>
+    <div class="hero-map-wrap">
+      <div id="map-c"></div>
+    </div>
+  </section>
+
+  <section class="how" id="c-how">
+    <div class="inner">
+      <div class="stag">How it works for your clinic</div>
+      <div class="sh">Simple setup.<br>Then it runs itself.</div>
+      <div class="steps">
+        <div class="step reveal"><div class="sn">01</div><div class="st">We set you up together</div><div class="sd">One of our team sits with you for 30 minutes. We connect to your existing calendar — Google, Outlook, or Apple — and your availability appears on LOKKT automatically.</div></div>
+        <div class="step reveal" style="transition-delay:0.1s"><div class="sn">02</div><div class="st">Patients book. You see it instantly.</div><div class="sd">When a patient books through LOKKT, the appointment appears in your existing calendar automatically. Everything stays in the calendar you already use.</div></div>
+        <div class="step reveal" style="transition-delay:0.2s"><div class="sn">03</div><div class="st">Reminders go out. No-shows drop.</div><div class="sd">Every patient gets an automatic SMS reminder 24 hours before and again 2 hours before. Clinics report up to 40% fewer missed appointments.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="why" id="c-why">
+    <div class="inner">
+      <div class="stag">Why LOKKT</div>
+      <div class="sh">More than a booking tool.<br>A real business advantage.</div>
+      <div class="wgrid">
+        <div class="wcard reveal"><div class="wn">01</div><div class="wt">Dramatically fewer no-shows</div><div class="wd">Automatic reminders at 24 and 2 hours before every appointment. Clinics report up to 40% fewer missed appointments — real revenue recovered every month.</div></div>
+        <div class="wcard reveal" style="transition-delay:0.1s"><div class="wn">02</div><div class="wt">Reach Geneva's international population</div><div class="wd">Over 40% of Geneva residents speak a language other than French. LOKKT surfaces your clinic to English, German, Italian and Portuguese speakers who would never have found you otherwise.</div></div>
+        <div class="wcard reveal" style="transition-delay:0.2s"><div class="wn">03</div><div class="wt">Less time on the phone</div><div class="wd">Every booking through LOKKT is one less phone call for your reception. Patients book, reschedule, and cancel themselves.</div></div>
+        <div class="wcard reveal" style="transition-delay:0.3s"><div class="wn">04</div><div class="wt">You only pay when we launch</div><div class="wd">Sign up today, get onboarded before launch, and billing only starts the day LOKKT goes live. No setup fee. No long-term contract. Cancel anytime.</div></div>
+        <div class="wcard wide reveal" style="transition-delay:0.4s"><div class="wn">05</div><div class="wt">Works with your existing calendar</div><div class="wd">LOKKT connects to Google Calendar, Outlook, and Apple Calendar via a simple link you share once. Your existing bookings show as unavailable. New LOKKT bookings appear in your calendar instantly. You never manage two systems.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing" id="c-pricing">
+    <div class="inner">
+      <div class="stag">Pricing</div>
+      <div class="sh">Simple. Transparent.<br>No surprises.</div>
+      <div class="pnote"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>You sign up now for free. Billing only starts on the day LOKKT officially launches.</div>
+      <div class="pgrid">
+        <div class="pcard feat reveal">
+          <div class="pbadge">Founding Partner</div>
+          <div class="ptier">Founding Partner</div>
+          <div class="pprice">CHF 100<sub>/month</sub></div>
+          <div class="pwho">For the first 15 clinics who join</div>
+          <div class="ppay"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Rate locked in permanently</div>
+          <div class="pdiv"></div>
+          <ul class="pfeats">
+            <li><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Full booking dashboard</li>
+            <li><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Automatic patient SMS reminders</li>
+            <li><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Monthly analytics report</li>
+            <li><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Public clinic profile on LOKKT</li>
+            <li><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Calendar sync — Google, Outlook, Apple</li>
+            <li class="hi"><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Founding Partner badge on your profile</li>
+            <li class="hi"><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Dedicated onboarding — we come to you</li>
+            <li class="hi"><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Rate permanently locked — never goes up</li>
+          </ul>
+          <button class="pcta bl" onclick="window.open('https://tally.so/r/obd1NP','_blank')">Join as Founding Partner</button>
+        </div>
+        <div class="pcard reveal" style="transition-delay:0.12s">
+          <div class="ptier">Standard</div>
+          <div class="pprice">CHF 200<sub>/month</sub></div>
+          <div class="pwho">For clinics joining after launch</div>
+          <div class="ppay"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>No setup fee · Cancel anytime</div>
+          <div class="pdiv"></div>
+          <ul class="pfeats">
+            <li><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Full booking dashboard</li>
+            <li><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Automatic patient SMS reminders</li>
+            <li><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Monthly analytics report</li>
+            <li><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Public clinic profile on LOKKT</li>
+            <li><span class="chk"><svg viewBox="0 0 10 10"><path d="M2 5l2 2.5L8 2.5"/></svg></span>Calendar sync — Google, Outlook, Apple</li>
+          </ul>
+          <button class="pcta gh" onclick="window.open('https://tally.so/r/obd1NP','_blank')">Join the waitlist</button>
+        </div>
+      </div>
+      <div class="pfooter">Free for patients, always · No setup fees · Cancel anytime · Swiss-hosted data</div>
+    </div>
+  </section>
+
+  <section class="waitlist" id="c-waitlist">
+    <div class="wi">
+      <div class="stag">Join the waitlist</div>
+      <div class="sh" style="margin-bottom:12px;">Become a founding clinic.</div>
+      <p class="sb" style="margin:0 auto;text-align:center;">Only 15 founding partner spots in Geneva. One of our team will call you within 48 hours — free until launch.</p>
+      <a href="https://tally.so/r/obd1NP" target="_blank" class="wcta gr">Join as a Founding Partner clinic</a>
+      <p class="wnote">You won't be charged anything until LOKKT officially launches.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="flogo" onclick="showPage('entry')"><img src="icon.png" alt="LOKKT"><span>LOKKT</span></div>
+    <ul class="flinks">
+      <li><a onclick="document.getElementById('c-how').scrollIntoView({behavior:'smooth'})">How it works</a></li>
+      <li><a onclick="document.getElementById('c-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a></li>
+      <li><a onclick="showPage('patient')">For patients</a></li>
+      <li><a href="#">Privacy</a></li>
+    </ul>
+    <div class="fcopy">© 2025 LOKKT · Geneva, Switzerland</div>
+  </footer>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// PAGE
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+  setTimeout(initReveal, 100);
+  if (id === 'patient') setTimeout(() => initMap('map-p', '#1A56DB'), 100);
+  if (id === 'clinic')  setTimeout(() => initMap('map-c', '#059669'), 100);
+}
+
+// NAV SCROLL
+function navScroll(section) {
+  const page = document.querySelector('.page.active');
+  if (!page) return;
+  const ids = {
+    'page-patient': { how:'p-how', why:'p-why', waitlist:'waitlist' },
+    'page-clinic':  { how:'c-how', why:'c-why', waitlist:'c-waitlist' }
+  };
+  const map = ids[page.id];
+  if (!map || !map[section]) return;
+  const el = document.getElementById(map[section]);
+  if (el) el.scrollIntoView({ behavior:'smooth' });
+}
+
+// REVEAL
+function initReveal() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal:not(.on)').forEach(el => obs.observe(el));
+}
+initReveal();
+
+// MAP
+const maps = {};
+const clinics = [
+  { lat: 46.2044, lng: 6.1432, name: 'Cabinet Dr. Martin — GP' },
+  { lat: 46.2080, lng: 6.1460, name: 'Geneva Dental Centre' },
+  { lat: 46.1990, lng: 6.1400, name: 'PhysioPlus Rive' },
+  { lat: 46.2100, lng: 6.1380, name: 'Dermatologue Cornavin' },
+  { lat: 46.2060, lng: 6.1500, name: 'Cabinet Pédiatrique' },
+  { lat: 46.2020, lng: 6.1480, name: 'Ophtalmo Centre' },
+  { lat: 46.1970, lng: 6.1450, name: 'Ostéopathe Plainpalais' },
+  { lat: 46.2090, lng: 6.1420, name: 'Dentiste Grottes' },
+];
+
+function initMap(containerId, color) {
+  if (maps[containerId]) { maps[containerId].invalidateSize(); return; }
+  const m = L.map(containerId, {
+    center: [46.2044, 6.1432],
+    zoom: 14,
+    zoomControl: false,
+    scrollWheelZoom: false,
+    dragging: true,
+    doubleClickZoom: false,
+    attributionControl: false
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19
+  }).addTo(m);
+
+  const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
+    <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 22 14 22S28 24.5 28 14C28 6.268 21.732 0 14 0z" fill="${color}"/>
+    <circle cx="14" cy="14" r="6" fill="white"/>
+  </svg>`;
+
+  const icon = L.divIcon({
+    html: pinSvg,
+    iconSize: [28, 36],
+    iconAnchor: [14, 36],
+    popupAnchor: [0, -36],
+    className: ''
+  });
+
+  clinics.forEach(c => {
+    L.marker([c.lat, c.lng], { icon })
+      .addTo(m)
+      .bindPopup(`<strong style="font-family:sans-serif;font-size:13px;">${c.name}</strong><br><span style="font-size:11px;color:#6B7A90;">Available today</span>`, { closeButton: false });
+  });
+
+  maps[containerId] = m;
+}
+</script>
+</body>
+</html>
