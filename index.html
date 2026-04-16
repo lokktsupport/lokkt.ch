@@ -21,6 +21,32 @@ body { font-family: 'DM Sans', sans-serif; background: var(--white); color: var(
 
 /* NAV */
 nav {
+  <nav>
+  <div class="nav-home" onclick="showPage('entry')">
+    <img src="icon.png" alt="LOKKT icon">
+  </div>
+  <ul class="nav-links">
+    <li><a href="#" onclick="showPage('clinic');return false;" style="color:var(--text);font-weight:500;" data-i18n="nav_clinics">For clinics</a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')" id="btn-en">EN</button>
+      <button class="lang-btn" onclick="setLang('fr')" id="btn-fr">FR</button>
+      <button class="lang-btn" onclick="setLang('de')" id="btn-de">DE</button>
+    </div>
+  <!-- Entry page -->
+<div class="entry-q" data-i18n="entry_q">Who are you here for?</div>
+<div class="ecard-title" data-i18n="entry_patient_title">I need an appointment</div>
+<div class="ecard-desc" data-i18n="entry_patient_desc">Find and book a doctor...</div>
+<div class="ecard-title" data-i18n="entry_clinic_title">I run a clinic or medical practice</div>
+<div class="ecard-desc" data-i18n="entry_clinic_desc">Fill your empty slots...</div>
+
+<!-- Patient hero -->
+<h1 data-i18n="p_h1">Finding a doctor...</h1>
+<p class="hero-p" data-i18n="p_hero_p">LOKKT shows you...</p>
+    <a href="https://tally.so/r/dWj1oo" target="_blank" data-i18n="nav_cta" style="background:var(--blue);color:#fff;padding:10px 22px;border-radius:9px;font-size:14px;font-weight:500;text-decoration:none;transition:background 0.2s;">Join the waitlist</a>
+  </div>
+</nav>
   position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
   height: 68px; padding: 0 56px;
   display: flex; align-items: center; justify-content: space-between;
@@ -34,7 +60,9 @@ nav {
 .nav-links a { font-size: 14px; font-weight: 400; color: var(--soft); text-decoration: none; padding: 8px 16px; border-radius: 8px; transition: color 0.2s, background 0.2s; cursor: pointer; display: block; }
 .nav-links a:hover { color: var(--text); background: var(--light); }
 .nav-btn { background: var(--blue); color: #fff; padding: 10px 22px; border-radius: 9px; font-size: 14px; font-weight: 500; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s, transform 0.15s; }
-.nav-btn:hover { background: var(--blue-dark); transform: translateY(-1px); }
+.nav-btn:hover { background: var(--blue-dark); transform: translateY(-1px); } .lang-toggle { display: flex; align-items: center; gap: 2px; background: var(--light); border-radius: 8px; padding: 3px; border: 1px solid var(--border); }
+.lang-btn { font-size: 12px; font-weight: 600; color: var(--soft); padding: 5px 10px; border-radius: 6px; border: none; background: transparent; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.18s; letter-spacing: 0.02em; }
+.lang-btn.active { background: var(--white); color: var(--blue); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 
 /* ENTRY */
 .entry-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 24px 60px; background: var(--white); }
@@ -597,7 +625,114 @@ function initReveal() {
   document.querySelectorAll('.reveal:not(.on)').forEach(el => obs.observe(el));
 }
 initReveal();
+const translations = {
+  en: {
+    nav_clinics: 'For clinics',
+    nav_cta: 'Join the waitlist',
+    entry_q: 'Who are you here for?',
+    entry_patient_title: 'I need an appointment',
+    entry_patient_desc: 'Find and book a doctor, dentist, or physio near you in under 60 seconds.',
+    entry_clinic_title: 'I run a clinic or medical practice',
+    entry_clinic_desc: 'Fill your empty slots and reduce no-shows automatically.',
+    p_eyebrow: 'Launching in Geneva, Switzerland',
+    p_h1: 'Finding a doctor<br>in Geneva<br>is <em>broken.</em><br>We fixed it.',
+    p_hero_p: 'LOKKT shows you every available appointment at doctors, dentists, and physios near you. <strong>Book in under 60 seconds.</strong> No phone calls. No waiting on hold.',
+    p_cta_main: 'Get early access →',
+    p_cta_how: 'How it works',
+    p_stat1: 'Average time<br>to book',
+    p_stat2: 'Free for<br>patients, always',
+    p_stat3: 'Book any time,<br>day or night',
+    p_how_tag: 'How it works',
+    p_how_sh: 'Three steps.<br>You\'re booked.',
+    p_s1_title: 'Search for what you need',
+    p_s1_desc: 'Type a symptom, specialty, or clinic name. Filter by language or insurance type.',
+    p_s2_title: 'Tap a time that works for you',
+    p_s2_desc: 'See real, live availability. Green means today. Tap a slot and it\'s yours.',
+    p_s3_title: 'Confirmed. You\'re done.',
+    p_s3_desc: 'Confirm in one tap and you\'re booked. Reminders sent automatically. Reschedule anytime.',
+    p_wl_tag: 'Get early access',
+    p_wl_sh: 'Be first in Geneva.',
+    p_wl_sub: 'Sign up and we\'ll let you know the moment LOKKT launches in your area. Free — and always will be.',
+    p_wl_cta: 'Join the patient waitlist',
+    p_wl_note: 'No spam. One email when we launch near you.',
+  },
+  fr: {
+    nav_clinics: 'Pour les cabinets',
+    nav_cta: 'Rejoindre la liste d\'attente',
+    entry_q: 'Vous êtes ici pour qui ?',
+    entry_patient_title: 'J\'ai besoin d\'un rendez-vous',
+    entry_patient_desc: 'Trouvez et réservez un médecin, dentiste ou physio près de chez vous en moins de 60 secondes.',
+    entry_clinic_title: 'Je gère un cabinet médical',
+    entry_clinic_desc: 'Remplissez vos créneaux libres et réduisez les absences automatiquement.',
+    p_eyebrow: 'Bientôt disponible à Genève',
+    p_h1: 'Trouver un médecin<br>à Genève<br>est <em>compliqué.</em><br>On a changé ça.',
+    p_hero_p: 'LOKKT vous montre tous les rendez-vous disponibles près de vous. <strong>Réservez en moins de 60 secondes.</strong> Sans appel. Sans attente.',
+    p_cta_main: 'Accès anticipé →',
+    p_cta_how: 'Comment ça marche',
+    p_stat1: 'Temps moyen<br>pour réserver',
+    p_stat2: 'Gratuit pour<br>les patients, toujours',
+    p_stat3: 'Réservez n\'importe quand,<br>jour et nuit',
+    p_how_tag: 'Comment ça marche',
+    p_how_sh: 'Trois étapes.<br>C\'est réservé.',
+    p_s1_title: 'Recherchez ce dont vous avez besoin',
+    p_s1_desc: 'Tapez un symptôme, une spécialité ou un nom de cabinet. Filtrez par langue ou type d\'assurance.',
+    p_s2_title: 'Choisissez un créneau qui vous convient',
+    p_s2_desc: 'Disponibilité en temps réel. Le vert indique aujourd\'hui. Appuyez et c\'est à vous.',
+    p_s3_title: 'Confirmé. C\'est fait.',
+    p_s3_desc: 'Confirmez en un tap. Rappels automatiques. Reprogrammez à tout moment.',
+    p_wl_tag: 'Accès anticipé',
+    p_wl_sh: 'Soyez les premiers à Genève.',
+    p_wl_sub: 'Inscrivez-vous et nous vous préviendrons dès le lancement. Gratuit — et ça le restera.',
+    p_wl_cta: 'Rejoindre la liste patients',
+    p_wl_note: 'Pas de spam. Un seul email au lancement.',
+  },
+  de: {
+    nav_clinics: 'Für Praxen',
+    nav_cta: 'Warteliste beitreten',
+    entry_q: 'Für wen sind Sie hier?',
+    entry_patient_title: 'Ich brauche einen Termin',
+    entry_patient_desc: 'Finden und buchen Sie in unter 60 Sekunden einen Arzt, Zahnarzt oder Physio in Ihrer Nähe.',
+    entry_clinic_title: 'Ich leite eine Arztpraxis',
+    entry_clinic_desc: 'Füllen Sie freie Termine und reduzieren Sie Ausfälle automatisch.',
+    p_eyebrow: 'Bald verfügbar in Genf',
+    p_h1: 'Einen Arzt in Genf<br>zu finden ist<br><em>mühsam.</em><br>Wir haben das geändert.',
+    p_hero_p: 'LOKKT zeigt Ihnen alle verfügbaren Termine bei Ärzten, Zahnärzten und Physios in Ihrer Nähe. <strong>Buchen Sie in unter 60 Sekunden.</strong> Kein Anruf. Kein Warten.',
+    p_cta_main: 'Frühzugang →',
+    p_cta_how: 'So funktioniert\'s',
+    p_stat1: 'Durchschnittliche<br>Buchungszeit',
+    p_stat2: 'Kostenlos für<br>Patienten, immer',
+    p_stat3: 'Jederzeit buchen,<br>Tag und Nacht',
+    p_how_tag: 'So funktioniert\'s',
+    p_how_sh: 'Drei Schritte.<br>Termin gebucht.',
+    p_s1_title: 'Suchen Sie, was Sie brauchen',
+    p_s1_desc: 'Geben Sie ein Symptom, eine Fachrichtung oder einen Praxisnamen ein. Filtern Sie nach Sprache oder Versicherungstyp.',
+    p_s2_title: 'Wählen Sie eine passende Zeit',
+    p_s2_desc: 'Echte Verfügbarkeit in Echtzeit. Grün bedeutet heute. Tippen und der Termin gehört Ihnen.',
+    p_s3_title: 'Bestätigt. Fertig.',
+    p_s3_desc: 'Mit einem Tap bestätigen und gebucht. Automatische Erinnerungen. Jederzeit umbuchen.',
+    p_wl_tag: 'Frühzugang',
+    p_wl_sh: 'Als Erste in Genf.',
+    p_wl_sub: 'Melden Sie sich an und wir informieren Sie, sobald LOKKT in Ihrer Gegend startet. Kostenlos — und das bleibt so.',
+    p_wl_cta: 'Patientenliste beitreten',
+    p_wl_note: 'Kein Spam. Eine E-Mail beim Start.',
+  }
+};
 
+let currentLang = localStorage.getItem('lokkt_lang') || 'en';
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('lokkt_lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (translations[lang][key]) el.innerHTML = translations[lang][key];
+  });
+  ['en','fr','de'].forEach(l => document.getElementById('btn-' + l).classList.toggle('active', l === lang));
+  document.documentElement.lang = lang;
+}
+
+// Run on load
+setLang(currentLang);
 
 </script>
 </body>
