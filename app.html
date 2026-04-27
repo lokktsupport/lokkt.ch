@@ -1,0 +1,1982 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LOKKT · Secure Your Spot. In Seconds.</title>
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { darkMode: "class" };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html { background: #f1f5f9; transition: background 400ms ease; }
+      html.dark { background: #020617; }
+      body {
+        font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      .brand-wordmark {
+        font-family: "Syne", ui-sans-serif, system-ui, sans-serif;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      /* ── Keyframes ── */
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes checkPop {
+        0%   { opacity: 0; transform: scale(0.2); }
+        60%  { opacity: 1; transform: scale(1.15); }
+        80%  { transform: scale(0.96); }
+        100% { transform: scale(1); }
+      }
+      @keyframes ringPulse {
+        0%   { transform: scale(0.6); opacity: 0.5; }
+        100% { transform: scale(2.2); opacity: 0; }
+      }
+      @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to   { transform: translateY(0); }
+      }
+      @keyframes pulseToday {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.35); }
+        50%      { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+      }
+      @keyframes splashOut {
+        0%, 70% { opacity: 1; transform: scale(1); }
+        100%    { opacity: 0; transform: scale(1.08); pointer-events: none; }
+      }
+      @keyframes logoFloat {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-4px); }
+      }
+      @keyframes scanLine {
+        0%   { top: 12%; opacity: 0; }
+        15%  { opacity: 1; }
+        85%  { opacity: 1; }
+        100% { top: 88%; opacity: 0; }
+      }
+      @keyframes confettiFall {
+        0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(520px) rotate(720deg); opacity: 0; }
+      }
+      @keyframes toastIn {
+        from { opacity: 0; transform: translate(-50%, 20px); }
+        to   { opacity: 1; transform: translate(-50%, 0); }
+      }
+      @keyframes aiShine {
+        0%   { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+      @keyframes slotPulse {
+        0%   { box-shadow: 0 0 0 0 rgba(26, 86, 219, 0.45); }
+        100% { box-shadow: 0 0 0 12px rgba(26, 86, 219, 0); }
+      }
+
+      .screen-enter    { animation: fadeInUp 320ms cubic-bezier(0.16, 1, 0.3, 1); }
+      .check-celebrate { animation: checkPop 700ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+      .celebrate-ring {
+        position: absolute; inset: 0; border-radius: 9999px;
+        border: 3px solid #1A56DB; animation: ringPulse 900ms ease-out both;
+      }
+      .sheet-enter  { animation: slideUp 280ms cubic-bezier(0.16, 1, 0.3, 1); }
+      .pulse-today  { animation: pulseToday 2s ease-out infinite; }
+      .splash       { animation: splashOut 1400ms ease forwards; }
+      .logo-float   { animation: logoFloat 3s ease-in-out infinite; }
+      .slot-pulse   { animation: slotPulse 600ms ease-out; }
+      .toast-in     { animation: toastIn 240ms cubic-bezier(0.16, 1, 0.3, 1); }
+
+      .press { transition: transform 120ms ease, box-shadow 160ms ease, background 160ms ease; }
+      .press:active { transform: scale(0.96); }
+      .lift { transition: transform 160ms ease, box-shadow 200ms ease; }
+      .lift:hover { transform: translateY(-1px); }
+
+      .scan-host { position: relative; overflow: hidden; }
+      .scan-line {
+        position: absolute; left: 6%; right: 6%;
+        height: 2px; border-radius: 2px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent);
+        box-shadow: 0 0 12px rgba(255,255,255,0.6);
+        animation: scanLine 1400ms ease-in-out forwards;
+      }
+
+      .ai-sheen {
+        background: linear-gradient(90deg,
+          rgba(26,86,219,0.12) 0%, rgba(99,102,241,0.22) 50%, rgba(26,86,219,0.12) 100%);
+        background-size: 200% 100%;
+        animation: aiShine 3.2s ease-in-out infinite;
+      }
+
+      .confetti-piece {
+        position: absolute;
+        width: 8px; height: 12px;
+        border-radius: 2px;
+        will-change: transform, opacity;
+        animation: confettiFall 1800ms ease-out forwards;
+      }
+
+      .noscroll::-webkit-scrollbar { display: none; }
+      .noscroll { scrollbar-width: none; }
+
+      .theme-transition, .theme-transition * {
+        transition: background-color 260ms ease, color 260ms ease, border-color 260ms ease;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-100 dark:bg-slate-950 theme-transition">
+    <div id="root">
+      <div class="min-h-screen flex items-center justify-center text-slate-500">
+        Loading LOKKT…
+      </div>
+    </div>
+
+    <script type="text/babel">
+      const { useState, useMemo, useEffect, useRef } = React;
+
+      /* ─── Brand ─── */
+      const BRAND        = "#1A56DB";
+      const BRAND_DARK   = "#1443A8";
+      const BRAND_NAVY   = "#0B1D5E";
+      const BRAND_SOFT   = "#E8EEFC";
+      const BRAND_SOFT_DARK = "#1E2A5E";
+
+      /* ─── Logo: App icon ─── */
+      const AppIcon = ({ size = 96, className = "" }) => (
+        <svg viewBox="0 0 100 100" width={size} height={size} className={className}
+             xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LOKKT">
+          <circle cx="50" cy="50" r="48" fill={BRAND} />
+          <rect x="35" y="22" width="4"  height="9" rx="1.5" fill={BRAND_NAVY} />
+          <rect x="61" y="22" width="4"  height="9" rx="1.5" fill={BRAND_NAVY} />
+          <rect x="24" y="28" width="52" height="48" rx="8" fill="#FFFFFF" />
+          <rect x="33" y="40" width="9"  height="9" rx="1.5" fill={BRAND_NAVY} />
+          <rect x="58" y="40" width="9"  height="9" rx="1.5" fill={BRAND_NAVY} />
+          <rect x="33" y="58" width="9"  height="9" rx="1.5" fill={BRAND_NAVY} />
+          <rect x="58" y="58" width="9"  height="9" rx="1.5" fill={BRAND_NAVY} />
+        </svg>
+      );
+
+      const Wordmark = ({ size = 42, showTagline = false }) => {
+        const letterHeight = size;
+        const iconSize = size * 0.92;
+        return (
+          <div className="inline-flex flex-col items-start">
+            <div className="inline-flex items-center" style={{ gap: 0 }}>
+              <span className="brand-wordmark leading-none"
+                    style={{ color: BRAND, fontSize: letterHeight, lineHeight: 0.95 }}>L</span>
+              <span className="inline-flex"
+                    style={{ width: iconSize, height: iconSize,
+                             marginLeft: size * -0.04, marginRight: size * -0.04,
+                             transform: `translateY(${size * 0.02}px)` }}>
+                <AppIcon size={iconSize} />
+              </span>
+              <span className="brand-wordmark leading-none"
+                    style={{ color: BRAND, fontSize: letterHeight, lineHeight: 0.95 }}>KKT</span>
+            </div>
+            {showTagline && (
+              <p className="mt-2 text-slate-500 dark:text-slate-400 text-center w-full"
+                 style={{ fontSize: size * 0.28, letterSpacing: "0.01em" }}>
+                Secure Your Spot. In Seconds.
+              </p>
+            )}
+          </div>
+        );
+      };
+
+      /* ─── Inline icons ─── */
+      const Icon = ({ children, className = "", strokeWidth = 2, ...rest }) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" strokeWidth={strokeWidth}
+             strokeLinecap="round" strokeLinejoin="round" className={className} {...rest}>{children}</svg>
+      );
+      const Search = (p) => <Icon {...p}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></Icon>;
+      const MapPin = (p) => <Icon {...p}><path d="M20 10c0 7-8 13-8 13s-8-6-8-13a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></Icon>;
+      const Globe  = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></Icon>;
+      const Star   = (p) => <Icon {...p}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></Icon>;
+      const Clock  = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></Icon>;
+      const CalendarIcon = (p) => <Icon {...p}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></Icon>;
+      const Users  = (p) => <Icon {...p}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></Icon>;
+      const User   = (p) => <Icon {...p}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></Icon>;
+      const HomeIcon = (p) => <Icon {...p}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><polyline points="9 22 9 12 15 12 15 22"/></Icon>;
+      const ChevronLeft  = (p) => <Icon {...p}><path d="m15 18-6-6 6-6"/></Icon>;
+      const ChevronRight = (p) => <Icon {...p}><path d="m9 18 6-6-6-6"/></Icon>;
+      const ShieldCheck  = (p) => <Icon {...p}><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></Icon>;
+      const Check  = (p) => <Icon {...p}><path d="M20 6 9 17l-5-5"/></Icon>;
+      const Bell   = (p) => <Icon {...p}><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></Icon>;
+      const Moon   = (p) => <Icon {...p}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></Icon>;
+      const Share2 = (p) => <Icon {...p}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></Icon>;
+      const LogOut = (p) => <Icon {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></Icon>;
+      const Scan   = (p) => <Icon {...p}><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></Icon>;
+      const Plus   = (p) => <Icon {...p}><path d="M5 12h14"/><path d="M12 5v14"/></Icon>;
+      const XIcon  = (p) => <Icon {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Icon>;
+      const Filter = (p) => <Icon {...p}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></Icon>;
+      const Sparkles = (p) => <Icon {...p}><path d="M12 3v4"/><path d="M12 17v4"/><path d="M3 12h4"/><path d="M17 12h4"/><path d="m5.6 5.6 2.8 2.8"/><path d="m15.6 15.6 2.8 2.8"/><path d="m18.4 5.6-2.8 2.8"/><path d="m8.4 15.6-2.8 2.8"/></Icon>;
+      const Stethoscope = (p) => <Icon {...p}><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></Icon>;
+      const Building = (p) => <Icon {...p}><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></Icon>;
+      const Ban = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></Icon>;
+
+      /* ─── Translations ─── */
+      const I18N = {
+        EN: {
+          greetingMorning:"Good morning", greetingAfternoon:"Good afternoon", greetingEvening:"Good evening",
+          searchPlaceholder:"Describe what you are experiencing…",
+          findDoctor:"Find a doctor",
+          quickPicks:"Quick picks",
+          tagCheckup:"General checkup", tagDental:"Dental", tagPhysio:"Physiotherapy",
+          tagDerm:"Dermatology", tagMental:"Mental health",
+          availableToday:"Available today · near you",
+          seeAll:"See all →",
+          today:"Today", tomorrow:"Tomorrow",
+          gpsNearMe:"Doctors near me",
+          filterInsurance:"Insurance", filterMore:"More", filterLanguage:"Language",
+          any:"Any",
+          resultsCount:(n)=>`${n} results`,
+          noResults:"No clinics match those filters. Try widening your search.",
+          clinicDetails:"Clinic details",
+          availableSlots:"Available slots",
+          pickDate:"Pick a date",
+          noSlotsThatDay:"No availability this day",
+          insuranceAccepted:"Insurance accepted",
+          freeToCancel:"Free to cancel",
+          cancelNote:"Cancel or reschedule any time up to 2 hours before your appointment.",
+          confirmFaceId:"Confirm with Face ID",
+          scanning:"Scanning…",
+          lockedIn:"You're locked in.",
+          slotSecured:"Your slot is secured. Nobody else can take it.",
+          appointment:"Appointment",
+          smsReminder:"SMS reminder 24h and 2h before",
+          viewAppointments:"View appointments",
+          backHome:"Back to home",
+          appointments:"Appointments",
+          upcoming:"Upcoming", history:"History",
+          noUpcoming:"No upcoming appointments yet.",
+          reschedule:"Reschedule", cancel:"Cancel", view:"View",
+          cancelTitle:"Cancel appointment?",
+          cancelSub:"You can rebook anytime, free of charge.",
+          keepIt:"Keep it", cancelYes:"Yes, cancel",
+          apptCancelled:"Appointment cancelled",
+          youRated:"You rated 5/5",
+          relatives:"Relatives",
+          relativesIntro:"Book and manage appointments for people you care for.",
+          addRelative:"Add a relative",
+          fullName:"Full name",
+          partner:"Partner", child:"Child", parent:"Parent", other:"Other",
+          addRelativeBtn:"Add relative",
+          next:"Next",
+          noUpcomingRel:"No upcoming appointment",
+          profile:"Profile",
+          notifications:"Notifications",
+          darkMode:"Dark mode",
+          shareLOKKT:"Share LOKKT",
+          logOut:"Log out",
+          brandTagline:"LOKKT · Secure Your Spot. In Seconds.",
+          tabHome:"Home", tabAppts:"Appointments", tabRel:"Relatives", tabProf:"Profile",
+          mar12:"Mar 12", checkupAt:"General checkup · 10:30",
+          reviews:(n)=>`${n} reviews`,
+          aiLabel:"LOKKT AI",
+          aiSuggest:(spec)=>`Based on what you described, we're showing ${spec} specialists near you.`,
+          aiNoMatch:"Showing general practitioners near you.",
+          specDental:"dental", specDerm:"dermatology", specMental:"mental-health",
+          specPhysio:"physiotherapy", specGP:"general-practice",
+          specLabelGP:"General Practitioner", specLabelDental:"Dentist",
+          specLabelDerm:"Dermatologist", specLabelMental:"Mental Health",
+          specLabelPhysio:"Physiotherapist",
+          dayShort:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+          monthShort:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+          closed:"Closed",
+          slotsLeft:(n)=>`${n} slots`,
+          oneSlotLeft:"1 slot",
+          fewLeft:"Few left",
+          linkCopied:"Link copied · lokkt.ch",
+          loggedOut:"See you soon, Alex.",
+          settingSaved:"Setting saved",
+          languagePick:"Choose language",
+          insurancePick:"Choose insurance",
+          notifPick:"Notification preferences",
+          notifAppt:"Appointment reminders",
+          notifPromo:"Tips & updates",
+          done:"Done",
+          rebooked:"Pick a new time.",
+          /* Sign-in & clinic side */
+          signInTitle:"Welcome to LOKKT",
+          signInSub:"How are you using LOKKT today?",
+          roleP:"I'm a patient", rolePDesc:"Book appointments near you.",
+          roleC:"I'm a clinic",  roleCDesc:"Manage your schedule and bookings.",
+          clinicPickTitle:"Sign in as a clinic",
+          clinicPickSub:"Select your practice to continue.",
+          clinicDash:"Dashboard",
+          clinicTodaySchedule:"Today's schedule",
+          clinicNoBookings:"No appointments today. A calm day.",
+          clinicUpcoming:"Upcoming bookings",
+          clinicNoUpcoming:"No upcoming bookings.",
+          clinicPatient:"Patient",
+          clinicCancelAppt:"Cancel",
+          clinicBlocked:"Blocked",
+          clinicBlockedToast:"Slot blocked — patients can't book this time.",
+          clinicUnblockedToast:"Slot reopened.",
+          clinicApptCancelled:"Appointment cancelled. Patient notified.",
+          clinicSwitch:"Switch clinic",
+          clinicSignedOut:"Signed out.",
+          clinicBookingsNow:(n)=>`${n} booking${n===1?"":"s"} today`,
+          clinicOpenToday:"Today's slots · tap to block",
+        },
+        FR: {
+          greetingMorning:"Bonjour", greetingAfternoon:"Bon après-midi", greetingEvening:"Bonsoir",
+          searchPlaceholder:"Décrivez ce que vous ressentez…",
+          findDoctor:"Trouver un médecin",
+          quickPicks:"Accès rapide",
+          tagCheckup:"Consultation générale", tagDental:"Dentiste", tagPhysio:"Physiothérapie",
+          tagDerm:"Dermatologie", tagMental:"Santé mentale",
+          availableToday:"Disponibles aujourd'hui · près de chez vous",
+          seeAll:"Voir tout →",
+          today:"Aujourd'hui", tomorrow:"Demain",
+          gpsNearMe:"Médecins près de moi",
+          filterInsurance:"Assurance", filterMore:"Plus", filterLanguage:"Langue",
+          any:"Toutes",
+          resultsCount:(n)=>`${n} résultats`,
+          noResults:"Aucune clinique ne correspond. Essayez d'élargir votre recherche.",
+          clinicDetails:"Détails de la clinique",
+          availableSlots:"Créneaux disponibles",
+          pickDate:"Choisir une date",
+          noSlotsThatDay:"Pas de disponibilité ce jour",
+          insuranceAccepted:"Assurances acceptées",
+          freeToCancel:"Annulation gratuite",
+          cancelNote:"Annulez ou reprogrammez jusqu'à 2 heures avant votre rendez-vous.",
+          confirmFaceId:"Confirmer avec Face ID",
+          scanning:"Scan en cours…",
+          lockedIn:"C'est verrouillé.",
+          slotSecured:"Votre créneau est réservé. Personne ne peut le prendre.",
+          appointment:"Rendez-vous",
+          smsReminder:"Rappel SMS 24h et 2h avant",
+          viewAppointments:"Voir les rendez-vous",
+          backHome:"Retour à l'accueil",
+          appointments:"Rendez-vous",
+          upcoming:"À venir", history:"Historique",
+          noUpcoming:"Aucun rendez-vous à venir.",
+          reschedule:"Reprogrammer", cancel:"Annuler", view:"Voir",
+          cancelTitle:"Annuler le rendez-vous ?",
+          cancelSub:"Vous pouvez reprendre rendez-vous à tout moment, sans frais.",
+          keepIt:"Garder", cancelYes:"Oui, annuler",
+          apptCancelled:"Rendez-vous annulé",
+          youRated:"Vous avez noté 5/5",
+          relatives:"Proches",
+          relativesIntro:"Gérez les rendez-vous de vos proches.",
+          addRelative:"Ajouter un proche",
+          fullName:"Nom complet",
+          partner:"Partenaire", child:"Enfant", parent:"Parent", other:"Autre",
+          addRelativeBtn:"Ajouter",
+          next:"Prochain",
+          noUpcomingRel:"Aucun rendez-vous à venir",
+          profile:"Profil",
+          notifications:"Notifications",
+          darkMode:"Mode sombre",
+          shareLOKKT:"Partager LOKKT",
+          logOut:"Se déconnecter",
+          brandTagline:"LOKKT · Réservez votre créneau. En secondes.",
+          tabHome:"Accueil", tabAppts:"Rendez-vous", tabRel:"Proches", tabProf:"Profil",
+          mar12:"12 mars", checkupAt:"Consultation · 10:30",
+          reviews:(n)=>`${n} avis`,
+          aiLabel:"LOKKT AI",
+          aiSuggest:(spec)=>`D'après votre description, voici les spécialistes en ${spec} proches.`,
+          aiNoMatch:"Voici les médecins généralistes près de chez vous.",
+          specDental:"dentisterie", specDerm:"dermatologie", specMental:"santé mentale",
+          specPhysio:"physiothérapie", specGP:"médecine générale",
+          specLabelGP:"Médecin généraliste", specLabelDental:"Dentiste",
+          specLabelDerm:"Dermatologue", specLabelMental:"Santé mentale",
+          specLabelPhysio:"Physiothérapeute",
+          dayShort:["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"],
+          monthShort:["janv","févr","mars","avr","mai","juin","juil","août","sept","oct","nov","déc"],
+          closed:"Fermé",
+          slotsLeft:(n)=>`${n} créneaux`,
+          oneSlotLeft:"1 créneau",
+          fewLeft:"Presque complet",
+          linkCopied:"Lien copié · lokkt.ch",
+          loggedOut:"À bientôt, Alex.",
+          settingSaved:"Préférence enregistrée",
+          languagePick:"Choisir la langue",
+          insurancePick:"Choisir l'assurance",
+          notifPick:"Préférences de notification",
+          notifAppt:"Rappels de rendez-vous",
+          notifPromo:"Conseils et actualités",
+          done:"Terminé",
+          rebooked:"Choisissez un nouveau créneau.",
+          signInTitle:"Bienvenue sur LOKKT",
+          signInSub:"Comment utilisez-vous LOKKT aujourd'hui ?",
+          roleP:"Je suis un patient", rolePDesc:"Prenez rendez-vous près de chez vous.",
+          roleC:"Je suis une clinique", roleCDesc:"Gérez votre agenda et vos rendez-vous.",
+          clinicPickTitle:"Connexion en tant que clinique",
+          clinicPickSub:"Sélectionnez votre cabinet pour continuer.",
+          clinicDash:"Tableau de bord",
+          clinicTodaySchedule:"Rendez-vous du jour",
+          clinicNoBookings:"Aucun rendez-vous aujourd'hui.",
+          clinicUpcoming:"Prochains rendez-vous",
+          clinicNoUpcoming:"Aucun rendez-vous à venir.",
+          clinicPatient:"Patient",
+          clinicCancelAppt:"Annuler",
+          clinicBlocked:"Bloqué",
+          clinicBlockedToast:"Créneau bloqué — les patients ne peuvent plus le réserver.",
+          clinicUnblockedToast:"Créneau rouvert.",
+          clinicApptCancelled:"Rendez-vous annulé. Patient notifié.",
+          clinicSwitch:"Changer de clinique",
+          clinicSignedOut:"Déconnecté.",
+          clinicBookingsNow:(n)=>`${n} rendez-vous aujourd'hui`,
+          clinicOpenToday:"Créneaux du jour · appuyez pour bloquer",
+        },
+        DE: {
+          greetingMorning:"Guten Morgen", greetingAfternoon:"Guten Tag", greetingEvening:"Guten Abend",
+          searchPlaceholder:"Beschreiben Sie Ihre Beschwerden…",
+          findDoctor:"Arzt finden",
+          quickPicks:"Schnellauswahl",
+          tagCheckup:"Allgemeinuntersuchung", tagDental:"Zahnarzt", tagPhysio:"Physiotherapie",
+          tagDerm:"Dermatologie", tagMental:"Psychische Gesundheit",
+          availableToday:"Heute verfügbar · in Ihrer Nähe",
+          seeAll:"Alle anzeigen →",
+          today:"Heute", tomorrow:"Morgen",
+          gpsNearMe:"Ärzte in meiner Nähe",
+          filterInsurance:"Versicherung", filterMore:"Mehr", filterLanguage:"Sprache",
+          any:"Alle",
+          resultsCount:(n)=>`${n} Ergebnisse`,
+          noResults:"Keine Ergebnisse. Erweitern Sie Ihre Suche.",
+          clinicDetails:"Praxis-Details",
+          availableSlots:"Verfügbare Termine",
+          pickDate:"Datum wählen",
+          noSlotsThatDay:"An diesem Tag keine Verfügbarkeit",
+          insuranceAccepted:"Akzeptierte Versicherungen",
+          freeToCancel:"Kostenlose Stornierung",
+          cancelNote:"Stornierung oder Umbuchung bis 2 Stunden vor dem Termin.",
+          confirmFaceId:"Mit Face ID bestätigen",
+          scanning:"Scan läuft…",
+          lockedIn:"Gesichert.",
+          slotSecured:"Ihr Termin ist reserviert. Niemand kann ihn nehmen.",
+          appointment:"Termin",
+          smsReminder:"SMS-Erinnerung 24 und 2 Stunden vorher",
+          viewAppointments:"Termine ansehen",
+          backHome:"Zurück zur Startseite",
+          appointments:"Termine",
+          upcoming:"Bevorstehend", history:"Verlauf",
+          noUpcoming:"Keine bevorstehenden Termine.",
+          reschedule:"Umbuchen", cancel:"Stornieren", view:"Ansehen",
+          cancelTitle:"Termin stornieren?",
+          cancelSub:"Sie können jederzeit kostenlos neu buchen.",
+          keepIt:"Behalten", cancelYes:"Ja, stornieren",
+          apptCancelled:"Termin storniert",
+          youRated:"Sie haben 5/5 bewertet",
+          relatives:"Angehörige",
+          relativesIntro:"Verwalten Sie Termine für Ihre Angehörigen.",
+          addRelative:"Angehörigen hinzufügen",
+          fullName:"Vollständiger Name",
+          partner:"Partner", child:"Kind", parent:"Elternteil", other:"Andere",
+          addRelativeBtn:"Hinzufügen",
+          next:"Nächster",
+          noUpcomingRel:"Kein bevorstehender Termin",
+          profile:"Profil",
+          notifications:"Benachrichtigungen",
+          darkMode:"Dunkelmodus",
+          shareLOKKT:"LOKKT teilen",
+          logOut:"Abmelden",
+          brandTagline:"LOKKT · Sichern Sie Ihren Termin. In Sekunden.",
+          tabHome:"Start", tabAppts:"Termine", tabRel:"Angehörige", tabProf:"Profil",
+          mar12:"12. März", checkupAt:"Untersuchung · 10:30",
+          reviews:(n)=>`${n} Bewertungen`,
+          aiLabel:"LOKKT AI",
+          aiSuggest:(spec)=>`Basierend auf Ihrer Beschreibung zeigen wir ${spec}-Spezialisten in Ihrer Nähe.`,
+          aiNoMatch:"Wir zeigen Hausärzte in Ihrer Nähe.",
+          specDental:"Zahnmedizin", specDerm:"Dermatologie", specMental:"Psychische Gesundheit",
+          specPhysio:"Physiotherapie", specGP:"Allgemeinmedizin",
+          specLabelGP:"Hausarzt", specLabelDental:"Zahnarzt",
+          specLabelDerm:"Dermatologe", specLabelMental:"Psychische Gesundheit",
+          specLabelPhysio:"Physiotherapeut",
+          dayShort:["So","Mo","Di","Mi","Do","Fr","Sa"],
+          monthShort:["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"],
+          closed:"Geschlossen",
+          slotsLeft:(n)=>`${n} Termine`,
+          oneSlotLeft:"1 Termin",
+          fewLeft:"Wenige übrig",
+          linkCopied:"Link kopiert · lokkt.ch",
+          loggedOut:"Bis bald, Alex.",
+          settingSaved:"Einstellung gespeichert",
+          languagePick:"Sprache wählen",
+          insurancePick:"Versicherung wählen",
+          notifPick:"Benachrichtigungs-Einstellungen",
+          notifAppt:"Termin-Erinnerungen",
+          notifPromo:"Tipps & Updates",
+          done:"Fertig",
+          rebooked:"Bitte neuen Termin wählen.",
+          signInTitle:"Willkommen bei LOKKT",
+          signInSub:"Wie nutzen Sie LOKKT heute?",
+          roleP:"Ich bin Patient", rolePDesc:"Termine in Ihrer Nähe buchen.",
+          roleC:"Ich bin eine Praxis", roleCDesc:"Verwalten Sie Ihren Kalender und Termine.",
+          clinicPickTitle:"Als Praxis anmelden",
+          clinicPickSub:"Wählen Sie Ihre Praxis aus.",
+          clinicDash:"Übersicht",
+          clinicTodaySchedule:"Heutige Termine",
+          clinicNoBookings:"Heute keine Termine.",
+          clinicUpcoming:"Kommende Termine",
+          clinicNoUpcoming:"Keine kommenden Termine.",
+          clinicPatient:"Patient",
+          clinicCancelAppt:"Stornieren",
+          clinicBlocked:"Gesperrt",
+          clinicBlockedToast:"Termin gesperrt — Patienten können diese Zeit nicht buchen.",
+          clinicUnblockedToast:"Termin wieder frei.",
+          clinicApptCancelled:"Termin storniert. Patient benachrichtigt.",
+          clinicSwitch:"Praxis wechseln",
+          clinicSignedOut:"Abgemeldet.",
+          clinicBookingsNow:(n)=>`${n} Termine heute`,
+          clinicOpenToday:"Termine heute · tippen zum Sperren",
+        },
+      };
+
+      /* ─── Symptom → specialty rules (the "AI") ─── */
+      const SYMPTOM_RULES = [
+        { spec:"Dental", specKey:"specDental",
+          keywords:{
+            EN:["tooth","teeth","dental","dentist","cavity","gum","molar","filling"],
+            FR:["dent","dentiste","carie","gencive","molaire"],
+            DE:["zahn","zähne","karies","zahnarzt","backenzahn"],
+          }},
+        { spec:"Dermatology", specKey:"specDerm",
+          keywords:{
+            EN:["skin","rash","acne","mole","itch","eczema","derm","pimple"],
+            FR:["peau","éruption","acné","grain de beauté","démangeaison","eczéma","bouton"],
+            DE:["haut","ausschlag","akne","muttermal","jucken","ekzem","pickel"],
+          }},
+        { spec:"Mental health", specKey:"specMental",
+          keywords:{
+            EN:["anxious","anxiety","depress","stress","panic","sleep","insomnia","therapy","mood"],
+            FR:["anxieux","anxiété","déprim","stress","panique","sommeil","insomnie","thérapie","moral"],
+            DE:["angst","depress","stress","panik","schlaf","schlaflos","therapie","stimmung"],
+          }},
+        { spec:"Physiotherapy", specKey:"specPhysio",
+          keywords:{
+            EN:["back","knee","shoulder","muscle","sprain","neck","joint","pulled","physio"],
+            FR:["dos","genou","épaule","muscle","entorse","nuque","articulation","physio"],
+            DE:["rücken","knie","schulter","muskel","verstauchung","nacken","gelenk","physio"],
+          }},
+        { spec:"GP", specKey:"specGP",
+          keywords:{
+            EN:["checkup","general","fever","cold","flu","tired","cough","sore throat","headache","fatigue","stomach"],
+            FR:["consultation","générale","fièvre","rhume","grippe","fatigué","toux","gorge","mal de tête","estomac"],
+            DE:["untersuchung","allgemein","fieber","erkältung","grippe","müde","husten","hals","kopfschmerz","magen"],
+          }},
+      ];
+      const analyzeQuery = (q, lang) => {
+        if (!q || !q.trim()) return null;
+        const low = q.toLowerCase();
+        for (const rule of SYMPTOM_RULES) {
+          const kws = rule.keywords[lang] || rule.keywords.EN;
+          for (const kw of kws) if (low.includes(kw.toLowerCase())) return rule;
+        }
+        return { spec:"GP", specKey:"specGP", fallback:true };
+      };
+
+      /* ─── Clinics ─── */
+      const CLINICS = [
+        { id:"c1", name:"Cabinet Médical Plainpalais", specialty:"GP",
+          distance:"0.4 km", rating:4.8, reviews:214,
+          languages:["EN","FR"], insurance:["CSS","Helsana","Groupe Mutuel"],
+          addr:"Rue de Carouge 12, 1205 Genève", seed:3 },
+        { id:"c2", name:"Dr. Amélie Favre — GP", specialty:"GP",
+          distance:"0.9 km", rating:4.9, reviews:388,
+          languages:["EN","FR","DE"], insurance:["CSS","Swica","Sanitas"],
+          addr:"Boulevard Georges-Favon 30, 1204 Genève", seed:7 },
+        { id:"c3", name:"Eaux-Vives Family Practice", specialty:"GP",
+          distance:"1.6 km", rating:4.6, reviews:97,
+          languages:["EN","FR"], insurance:["Helsana","Assura"],
+          addr:"Rue du Nant 8, 1207 Genève", seed:11 },
+        { id:"c4", name:"Smile Dental · Dr. Roulin", specialty:"Dental",
+          distance:"0.7 km", rating:4.9, reviews:176,
+          languages:["EN","FR"], insurance:["CSS","Helsana","Swica"],
+          addr:"Rue du Rhône 14, 1204 Genève", seed:5 },
+        { id:"c5", name:"Lac Dental Clinic", specialty:"Dental",
+          distance:"1.3 km", rating:4.7, reviews:241,
+          languages:["EN","FR","DE"], insurance:["Sanitas","Assura"],
+          addr:"Quai Gustave-Ador 44, 1207 Genève", seed:13 },
+        { id:"c6", name:"Dermaclinic Geneva", specialty:"Dermatology",
+          distance:"1.1 km", rating:4.8, reviews:158,
+          languages:["EN","FR"], insurance:["CSS","Groupe Mutuel"],
+          addr:"Rue de la Corraterie 20, 1204 Genève", seed:17 },
+        { id:"c7", name:"Dr. Laurent — Dermatology", specialty:"Dermatology",
+          distance:"2.1 km", rating:4.6, reviews:73,
+          languages:["EN","FR","DE"], insurance:["Helsana","Sanitas"],
+          addr:"Rue de Lausanne 45, 1201 Genève", seed:19 },
+        { id:"c8", name:"Mind+ Geneva", specialty:"Mental health",
+          distance:"1.8 km", rating:4.9, reviews:129,
+          languages:["EN","FR","DE"], insurance:["CSS","Swica"],
+          addr:"Rue de Monthoux 36, 1201 Genève", seed:23 },
+        { id:"c9", name:"Serena Therapy Cabinet", specialty:"Mental health",
+          distance:"2.4 km", rating:4.7, reviews:88,
+          languages:["EN","FR"], insurance:["Assura","Helsana"],
+          addr:"Rue Voltaire 5, 1201 Genève", seed:29 },
+        { id:"c10", name:"Physio-Plainpalais", specialty:"Physiotherapy",
+          distance:"0.6 km", rating:4.8, reviews:204,
+          languages:["EN","FR"], insurance:["CSS","Sanitas","Swica"],
+          addr:"Avenue Henri-Dunant 10, 1205 Genève", seed:31 },
+        { id:"c11", name:"Kine Rhône", specialty:"Physiotherapy",
+          distance:"1.5 km", rating:4.6, reviews:112,
+          languages:["EN","FR","DE"], insurance:["Groupe Mutuel","Assura"],
+          addr:"Quai du Rhône 3, 1204 Genève", seed:37 },
+      ];
+
+      /* ─── Date helpers ─── */
+      const startOfDay = (d) => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+      const addDays    = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+      const dateKey    = (d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth()+1).padStart(2,"0");
+        const day = String(d.getDate()).padStart(2,"0");
+        return `${y}-${m}-${day}`;
+      };
+      const sameDay    = (a, b) => dateKey(a) === dateKey(b);
+
+      /* Deterministic slot generator per clinic+date */
+      const ALL_TIMES = ["08:30","09:00","09:30","10:00","10:30","11:00","11:30",
+                         "14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30"];
+      const hashStr = (s) => {
+        let h = 0;
+        for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+        return Math.abs(h);
+      };
+      const slotsFor = (clinic, date, bookedSet) => {
+        const k = `${clinic.id}-${dateKey(date)}`;
+        const h = hashStr(k) + (clinic.seed || 1);
+        const weekday = date.getDay();
+        if (weekday === 0) return [];                // Sun closed
+        if (weekday === 6 && h % 3 === 0) return []; // some Sat closed
+        if (h % 9 === 0) return [];                  // occasional off day
+        const count = 3 + (h % 6);                   // 3..8 slots
+        const picks = new Set();
+        for (let i = 0; i < 40 && picks.size < count; i++) {
+          picks.add(ALL_TIMES[(h + i * 7) % ALL_TIMES.length]);
+        }
+        const list = Array.from(picks).sort();
+        return list.filter((t) => !bookedSet.has(`${clinic.id}|${dateKey(date)}|${t}`));
+      };
+      const totalSlotsFor = (clinic, date) => {
+        const k = `${clinic.id}-${dateKey(date)}`;
+        const h = hashStr(k) + (clinic.seed || 1);
+        const weekday = date.getDay();
+        if (weekday === 0) return 0;
+        if (weekday === 6 && h % 3 === 0) return 0;
+        if (h % 9 === 0) return 0;
+        return 3 + (h % 6);
+      };
+
+      const specLabel = (spec, t) => {
+        if (spec === "GP") return t.specLabelGP;
+        if (spec === "Dental") return t.specLabelDental;
+        if (spec === "Dermatology") return t.specLabelDerm;
+        if (spec === "Mental health") return t.specLabelMental;
+        if (spec === "Physiotherapy") return t.specLabelPhysio;
+        return t.specLabelGP;
+      };
+
+      /* ─── UI atoms ─── */
+      const PhoneFrame = ({ children }) => (
+        <div className="flex items-center justify-center min-h-screen bg-slate-100 dark:bg-slate-950 p-4 theme-transition">
+          <div className="w-full max-w-[390px] h-[844px] rounded-[48px] bg-white dark:bg-slate-900 shadow-2xl overflow-hidden relative border-[10px] border-slate-900 dark:border-slate-800 theme-transition">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 dark:bg-slate-800 rounded-b-2xl z-30" />
+            {children}
+          </div>
+        </div>
+      );
+
+      const StatusBar = () => (
+        <div className="flex justify-between items-center px-8 pt-3 pb-1 text-xs font-semibold text-slate-800 dark:text-slate-200">
+          <span>9:41</span><span>•••</span>
+        </div>
+      );
+
+      const Pill = ({ children, active, onClick, icon: IconC }) => (
+        <button onClick={onClick}
+          className={`press inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap ${
+            active ? "text-white border-transparent shadow-md"
+                   : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
+          }`}
+          style={active ? { background: BRAND } : {}}>
+          {IconC && <IconC className="w-3.5 h-3.5" />}
+          {children}
+        </button>
+      );
+
+      const SectionHeader = ({ children, right }) => (
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight">{children}</h3>
+          {right}
+        </div>
+      );
+
+      const Splash = () => (
+        <div className="splash fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-slate-950">
+          <div className="logo-float">
+            <div className="flex flex-col items-center">
+              <AppIcon size={128} />
+              <p className="brand-wordmark mt-5 text-4xl" style={{ color: BRAND }}>LOKKT</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Secure Your Spot. In Seconds.</p>
+            </div>
+          </div>
+        </div>
+      );
+
+      /* ─── Toast ─── */
+      const Toast = ({ message, onDone }) => {
+        useEffect(() => {
+          if (!message) return;
+          const timer = setTimeout(onDone, 1800);
+          return () => clearTimeout(timer);
+        }, [message]);
+        if (!message) return null;
+        return (
+          <div className="toast-in absolute bottom-24 left-1/2 z-50 px-4 py-2.5 rounded-full text-white text-xs font-semibold shadow-xl"
+               style={{ background: BRAND, transform: "translateX(-50%)" }}>
+            {message}
+          </div>
+        );
+      };
+
+      /* ─── Confetti ─── */
+      const CONFETTI_COLORS = [BRAND, "#60A5FA", "#F59E0B", "#10B981", "#EC4899", "#FACC15"];
+      const Confetti = () => {
+        const pieces = useMemo(() => {
+          const out = [];
+          for (let i = 0; i < 28; i++) {
+            out.push({
+              id: i, left: Math.random() * 100,
+              delay: Math.random() * 200,
+              dur: 1400 + Math.random() * 900,
+              color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+              rotate: Math.random() * 360,
+            });
+          }
+          return out;
+        }, []);
+        return (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+            {pieces.map(p => (
+              <span key={p.id} className="confetti-piece"
+                    style={{
+                      left: `${p.left}%`, top: "-20px",
+                      background: p.color,
+                      animationDelay: `${p.delay}ms`,
+                      animationDuration: `${p.dur}ms`,
+                      transform: `rotate(${p.rotate}deg)`,
+                    }} />
+            ))}
+          </div>
+        );
+      };
+
+      /* ─── Date picker ─── */
+      const DatePicker = ({ selected, setSelected, clinic, bookedSet, t }) => {
+        const today = startOfDay(new Date());
+        const days = useMemo(() => Array.from({ length: 14 }, (_, i) => addDays(today, i)), []);
+        const scrollRef = useRef(null);
+        useEffect(() => {
+          if (scrollRef.current) {
+            const el = scrollRef.current.querySelector("[data-selected='true']");
+            if (el) el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+          }
+        }, [selected]);
+        return (
+          <div ref={scrollRef} className="flex gap-2 overflow-x-auto noscroll -mx-5 px-5 py-2">
+            {days.map((d, i) => {
+              const isSel = sameDay(d, selected);
+              const total = totalSlotsFor(clinic, d);
+              const remaining = slotsFor(clinic, d, bookedSet).length;
+              const isToday = sameDay(d, today);
+              return (
+                <button key={i} data-selected={isSel}
+                  onClick={() => setSelected(d)}
+                  className={`press shrink-0 w-14 rounded-2xl py-2 flex flex-col items-center border ${
+                    isSel ? "text-white border-transparent shadow-lg"
+                          : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700"
+                  }`}
+                  style={isSel ? { background: BRAND } : {}}>
+                  <span className={`text-[10px] font-bold uppercase ${isSel ? "text-white/80" : "text-slate-400 dark:text-slate-500"}`}>
+                    {isToday ? t.today.slice(0,3) : t.dayShort[d.getDay()]}
+                  </span>
+                  <span className="text-lg font-bold leading-tight">{d.getDate()}</span>
+                  <span className={`text-[9px] font-semibold mt-0.5 ${
+                    isSel ? "text-white/90"
+                          : total === 0 ? "text-slate-400 dark:text-slate-500"
+                          : remaining === 0 ? "text-slate-400 dark:text-slate-500"
+                          : remaining <= 1 ? "text-amber-500"
+                          : "text-emerald-600 dark:text-emerald-400"
+                  }`}>
+                    {total === 0 ? "—"
+                      : remaining === 0 ? t.closed
+                      : remaining === 1 ? t.oneSlotLeft
+                      : remaining <= 2 ? t.fewLeft
+                      : t.slotsLeft(remaining)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        );
+      };
+
+      /* ─── Face ID scan button ─── */
+      const FaceIdButton = ({ label, scanLabel, onDone }) => {
+        const [scanning, setScanning] = useState(false);
+        const start = () => {
+          if (scanning) return;
+          setScanning(true);
+          setTimeout(() => { setScanning(false); onDone(); }, 1400);
+        };
+        return (
+          <button onClick={start}
+            className="press scan-host w-full py-4 rounded-2xl text-white text-sm font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+            style={{ background: scanning ? BRAND_DARK : BRAND }}>
+            <Scan className="w-4 h-4" />
+            {scanning ? scanLabel : label}
+            {scanning && <span className="scan-line" />}
+          </button>
+        );
+      };
+
+      /* ─── Bottom sheet ─── */
+      const BottomSheet = ({ open, onClose, children }) => {
+        if (!open) return null;
+        return (
+          <div className="absolute inset-0 bg-black/50 flex items-end justify-center z-40" onClick={onClose}>
+            <div className="sheet-enter w-full bg-white dark:bg-slate-800 rounded-t-3xl p-5" onClick={(e)=>e.stopPropagation()}>
+              {children}
+            </div>
+          </div>
+        );
+      };
+
+      /* ─── Home ─── */
+      function HomeScreen({ lang, setLang, goSearch, goClinic, query, setQuery, t, bookedSet }) {
+        const hour = new Date().getHours();
+        const greeting = hour < 12 ? t.greetingMorning : hour < 18 ? t.greetingAfternoon : t.greetingEvening;
+        const today = startOfDay(new Date());
+        const todaysClinics = CLINICS.filter((c) => slotsFor(c, today, bookedSet).length > 0);
+        return (
+          <div className="screen-enter h-full overflow-y-auto noscroll pb-28">
+            <StatusBar />
+            <div className="px-5 pt-2 pb-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-500 font-semibold">{greeting}</p>
+                  <div className="mt-1"><Wordmark size={36} /></div>
+                </div>
+                <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+                  {["EN","FR","DE"].map((l) => (
+                    <button key={l} onClick={() => setLang(l)}
+                      className={`press text-[11px] font-bold px-2.5 py-1 rounded-lg ${
+                        lang === l ? "text-white shadow-sm" : "text-slate-500 dark:text-slate-400"
+                      }`}
+                      style={lang === l ? { background: BRAND } : {}}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <div className="relative">
+                  <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input value={query} onChange={(e)=>setQuery(e.target.value)}
+                    placeholder={t.searchPlaceholder}
+                    onKeyDown={(e)=>{ if (e.key === "Enter") goSearch(); }}
+                    className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2" />
+                </div>
+                <button onClick={goSearch}
+                  className="press mt-3 w-full py-3.5 rounded-2xl text-white text-sm font-semibold shadow-lg hover:shadow-xl"
+                  style={{ background: BRAND }}>
+                  {t.findDoctor}
+                </button>
+              </div>
+
+              <div className="mt-6">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">{t.quickPicks}</p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: t.tagCheckup, q: "checkup" },
+                    { label: t.tagDental,  q: "tooth" },
+                    { label: t.tagPhysio,  q: "back" },
+                    { label: t.tagDerm,    q: "skin" },
+                    { label: t.tagMental,  q: "anxiety" },
+                  ].map((p) => (
+                    <Pill key={p.label} onClick={() => { setQuery(p.q); goSearch(); }}>{p.label}</Pill>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <SectionHeader
+                  right={<button onClick={goSearch} className="press text-xs font-semibold" style={{ color: BRAND }}>{t.seeAll}</button>}>
+                  {t.availableToday}
+                </SectionHeader>
+                <div className="space-y-3">
+                  {todaysClinics.slice(0, 3).map((c) => {
+                    const daySlots = slotsFor(c, today, bookedSet);
+                    return (
+                      <button key={c.id} onClick={() => goClinic(c.id)}
+                        className="press lift w-full text-left p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md">
+                        <div className="flex items-start justify-between">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm truncate">{c.name}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{specLabel(c.specialty, t)} · {c.distance}</p>
+                            <div className="mt-2 flex items-center gap-2 text-xs">
+                              <span className="inline-flex items-center gap-1 text-amber-500">
+                                <Star className="w-3 h-3 fill-current" /> {c.rating}
+                              </span>
+                              <span className="text-slate-300 dark:text-slate-600">·</span>
+                              <span className="text-slate-500 dark:text-slate-400">{c.languages.join(" · ")}</span>
+                            </div>
+                          </div>
+                          <span className="pulse-today shrink-0 ml-2 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md text-white"
+                                style={{ background: "#16A34A" }}>{t.today}</span>
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                          {daySlots.slice(0,3).map((s) => (
+                            <span key={s} className="text-[11px] font-semibold px-2 py-1 rounded-md"
+                              style={{
+                                background: document.documentElement.classList.contains("dark") ? BRAND_SOFT_DARK : BRAND_SOFT,
+                                color: document.documentElement.classList.contains("dark") ? "#A5B4FC" : BRAND_DARK,
+                              }}>{s}</span>
+                          ))}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      /* ─── Search ─── */
+      function SearchScreen({ goClinic, goBack, query, setQuery, lang, t, bookedSet }) {
+        const [filterToday, setFilterToday] = useState(false);
+        const [filterLang, setFilterLang] = useState("Any");
+        const match = useMemo(() => analyzeQuery(query, lang), [query, lang]);
+        const today = startOfDay(new Date());
+
+        const results = useMemo(() => {
+          let list = CLINICS.slice();
+          if (match && !match.fallback) list = list.filter((c) => c.specialty === match.spec);
+          if (filterToday) list = list.filter((c) => slotsFor(c, today, bookedSet).length > 0);
+          if (filterLang !== "Any") list = list.filter((c) => c.languages.includes(filterLang));
+          return list;
+        }, [match, filterToday, filterLang, bookedSet]);
+
+        return (
+          <div className="screen-enter h-full overflow-y-auto noscroll pb-28">
+            <StatusBar />
+            <div className="px-5 pt-2">
+              <div className="flex items-center gap-3 mb-4">
+                <button onClick={goBack} className="press p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <ChevronLeft className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+                </button>
+                <div className="flex-1 relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input value={query} onChange={(e) => setQuery(e.target.value)}
+                    placeholder={t.gpsNearMe}
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none" />
+                </div>
+              </div>
+
+              {query && query.trim() && match && (
+                <div className="ai-sheen rounded-2xl p-3.5 mb-3 border border-indigo-200 dark:border-indigo-900">
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                         style={{ background: BRAND }}>
+                      <Sparkles className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: BRAND }}>{t.aiLabel}</p>
+                      <p className="text-xs text-slate-700 dark:text-slate-200 mt-0.5 leading-snug">
+                        {match.fallback ? t.aiNoMatch : t.aiSuggest(t[match.specKey])}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 overflow-x-auto noscroll pb-2 -mx-1 px-1">
+                <Pill active={filterToday} onClick={() => setFilterToday((v) => !v)} icon={Clock}>{t.today}</Pill>
+                <Pill active={filterLang !== "Any"}
+                  onClick={() => setFilterLang(filterLang === "Any" ? "EN" : filterLang === "EN" ? "FR" : filterLang === "FR" ? "DE" : "Any")}
+                  icon={Globe}>
+                  {t.filterLanguage}: {filterLang === "Any" ? t.any : filterLang}
+                </Pill>
+                <Pill icon={ShieldCheck}>{t.filterInsurance}</Pill>
+                <Pill icon={Filter}>{t.filterMore}</Pill>
+              </div>
+
+              <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-4 mb-2">
+                {t.resultsCount(results.length)}
+              </p>
+              <div className="space-y-3">
+                {results.map((c) => {
+                  const daySlots = slotsFor(c, today, bookedSet);
+                  const hasToday = daySlots.length > 0;
+                  const tomorrowSlots = slotsFor(c, addDays(today, 1), bookedSet);
+                  return (
+                    <button key={c.id} onClick={() => goClinic(c.id)}
+                      className="press lift w-full text-left p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{c.name}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1">
+                            <MapPin className="w-3 h-3" /> {c.distance} · {specLabel(c.specialty, t)}
+                          </p>
+                          <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                            <span className="inline-flex items-center gap-1 text-amber-500">
+                              <Star className="w-3 h-3 fill-current" /> {c.rating} ({c.reviews})
+                            </span>
+                            <span>·</span>
+                            <span>{c.languages.join(" · ")}</span>
+                          </div>
+                        </div>
+                        {hasToday && (
+                          <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md text-white"
+                                style={{ background: "#16A34A" }}>{t.today}</span>
+                        )}
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {(hasToday ? daySlots : tomorrowSlots).slice(0,4).map((s) => (
+                          <span key={s} className="text-[11px] font-semibold px-2 py-1 rounded-md"
+                            style={{
+                              background: document.documentElement.classList.contains("dark") ? BRAND_SOFT_DARK : BRAND_SOFT,
+                              color: document.documentElement.classList.contains("dark") ? "#A5B4FC" : BRAND_DARK,
+                            }}>
+                            {hasToday ? s : `${t.tomorrow} ${s}`}
+                          </span>
+                        ))}
+                      </div>
+                    </button>
+                  );
+                })}
+                {results.length === 0 && (
+                  <div className="text-center py-10 text-sm text-slate-500 dark:text-slate-400">{t.noResults}</div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      /* ─── Clinic ─── */
+      function ClinicScreen({ clinicId, initialDate, goBack, goConfirm, t, bookedSet }) {
+        const clinic = CLINICS.find((c) => c.id === clinicId) || CLINICS[0];
+        const today = startOfDay(new Date());
+        const [selectedDate, setSelectedDate] = useState(initialDate ? startOfDay(initialDate) : today);
+        const daySlots = useMemo(() => slotsFor(clinic, selectedDate, bookedSet), [clinic.id, selectedDate, bookedSet]);
+        const [picked, setPicked] = useState(daySlots[0] || null);
+        const [pulseKey, setPulseKey] = useState(0);
+
+        useEffect(() => { setPicked(daySlots[0] || null); }, [dateKey(selectedDate), clinic.id, daySlots.length]);
+
+        const monthLabel = `${t.monthShort[selectedDate.getMonth()]} ${selectedDate.getDate()}`;
+        const dayLabel = sameDay(selectedDate, today) ? t.today
+                        : sameDay(selectedDate, addDays(today,1)) ? t.tomorrow
+                        : t.dayShort[selectedDate.getDay()];
+
+        return (
+          <div className="screen-enter h-full overflow-y-auto noscroll pb-40">
+            <StatusBar />
+            <div className="px-5 pt-2">
+              <div className="flex items-center gap-3 mb-4">
+                <button onClick={goBack} className="press p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <ChevronLeft className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+                </button>
+                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t.clinicDetails}</p>
+              </div>
+
+              <div className="rounded-2xl p-5 text-white shadow-lg"
+                   style={{ background: `linear-gradient(135deg, ${BRAND} 0%, ${BRAND_DARK} 100%)` }}>
+                <div className="flex items-start gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
+                    <Stethoscope className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] uppercase font-bold tracking-widest text-white/70">{specLabel(clinic.specialty, t)}</p>
+                    <h2 className="text-xl font-bold mt-0.5">{clinic.name}</h2>
+                  </div>
+                </div>
+                <p className="text-xs text-white/80 mt-3 flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5" /> {clinic.addr}
+                </p>
+                <div className="mt-3 flex items-center gap-3 text-xs">
+                  <span className="inline-flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-current text-amber-300" />
+                    {clinic.rating} · {t.reviews(clinic.reviews)}
+                  </span>
+                  <span>·</span>
+                  <span>{clinic.languages.join(" · ")}</span>
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <SectionHeader>{t.pickDate}</SectionHeader>
+                <DatePicker selected={selectedDate} setSelected={setSelectedDate}
+                            clinic={clinic} bookedSet={bookedSet} t={t} />
+              </div>
+
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                    {t.availableSlots} · <span className="text-slate-500 dark:text-slate-400 font-medium">{dayLabel}, {monthLabel}</span>
+                  </h3>
+                </div>
+                {daySlots.length === 0 ? (
+                  <div className="text-center py-6 text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-2xl">
+                    {t.noSlotsThatDay}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-2">
+                    {daySlots.map((s) => {
+                      const isSel = picked === s;
+                      return (
+                        <button key={s}
+                          onClick={() => { setPicked(s); setPulseKey((k)=>k+1); }}
+                          className={`press py-3 rounded-xl text-sm font-semibold border ${
+                            isSel ? "text-white border-transparent shadow-md slot-pulse"
+                                  : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700"
+                          }`}
+                          style={isSel ? { background: BRAND } : {}}>
+                          {s}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-5">
+                <SectionHeader>{t.insuranceAccepted}</SectionHeader>
+                <div className="flex flex-wrap gap-2">
+                  {clinic.insurance.map((i) => (
+                    <span key={i} className="text-[11px] font-semibold px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">{i}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-5 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">{t.freeToCancel}</p>
+                <p className="text-xs text-emerald-800 dark:text-emerald-300 mt-1">{t.cancelNote}</p>
+              </div>
+            </div>
+
+            <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-white dark:from-slate-900 via-white/95 dark:via-slate-900/95 to-white/0 dark:to-slate-900/0">
+              {picked ? (
+                <FaceIdButton
+                  label={`${t.confirmFaceId} · ${picked} · ${dayLabel}`}
+                  scanLabel={t.scanning}
+                  onDone={() => goConfirm(clinic.id, selectedDate, picked)} />
+              ) : (
+                <button disabled
+                  className="w-full py-4 rounded-2xl text-white text-sm font-bold shadow-lg opacity-50 cursor-not-allowed"
+                  style={{ background: BRAND }}>
+                  {t.confirmFaceId}
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      /* ─── Confirmed ─── */
+      function ConfirmedScreen({ clinicId, date, slot, goHome, goAppts, t }) {
+        const clinic = CLINICS.find((c) => c.id === clinicId) || CLINICS[0];
+        const today = startOfDay(new Date());
+        const d = startOfDay(new Date(date));
+        const dayLabel = sameDay(d, today) ? t.today
+                        : sameDay(d, addDays(today,1)) ? t.tomorrow
+                        : `${t.dayShort[d.getDay()]} ${d.getDate()} ${t.monthShort[d.getMonth()]}`;
+        return (
+          <div className="screen-enter h-full flex flex-col relative">
+            <Confetti />
+            <StatusBar />
+            <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
+              <div className="relative">
+                <span className="celebrate-ring" />
+                <div className="check-celebrate w-20 h-20 rounded-full flex items-center justify-center relative"
+                     style={{ background: BRAND_SOFT }}>
+                  <Check className="w-10 h-10" style={{ color: BRAND }} strokeWidth={3} />
+                </div>
+              </div>
+              <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 mt-5">{t.lockedIn}</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">{t.slotSecured}</p>
+              <div className="mt-6 w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-left">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">{t.appointment}</p>
+                <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm mt-1">{clinic.name}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{clinic.addr}</p>
+                <div className="mt-3 flex items-center gap-4 text-xs">
+                  <span className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-300 font-medium">
+                    <CalendarIcon className="w-3.5 h-3.5" /> {dayLabel}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-300 font-medium">
+                    <Clock className="w-3.5 h-3.5" /> {slot}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-5 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <Bell className="w-3.5 h-3.5" /> {t.smsReminder}
+              </div>
+            </div>
+            <div className="p-5 space-y-2">
+              <button onClick={goAppts}
+                className="press w-full py-3.5 rounded-2xl text-white text-sm font-bold shadow-lg hover:shadow-xl"
+                style={{ background: BRAND }}>
+                {t.viewAppointments}
+              </button>
+              <button onClick={goHome}
+                className="press w-full py-3.5 rounded-2xl text-slate-700 dark:text-slate-200 text-sm font-semibold bg-slate-100 dark:bg-slate-800">
+                {t.backHome}
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      /* ─── Appointments ─── */
+      function AppointmentsScreen({ bookings, onCancel, onReschedule, goClinic, t }) {
+        const [tab, setTab] = useState("upcoming");
+        const [confirmCancel, setConfirmCancel] = useState(null);
+        const today = startOfDay(new Date());
+        const fmtDay = (d) => {
+          const x = startOfDay(new Date(d));
+          if (sameDay(x, today)) return t.today;
+          if (sameDay(x, addDays(today,1))) return t.tomorrow;
+          return `${t.dayShort[x.getDay()]} ${x.getDate()} ${t.monthShort[x.getMonth()]}`;
+        };
+        return (
+          <div className="screen-enter h-full overflow-y-auto noscroll pb-28">
+            <StatusBar />
+            <div className="px-5 pt-2">
+              <h2 className="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{t.appointments}</h2>
+              <div className="mt-3 flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                {[{ id:"upcoming", label: t.upcoming }, { id:"history", label: t.history }].map((tb) => (
+                  <button key={tb.id} onClick={() => setTab(tb.id)}
+                    className={`press flex-1 py-2 rounded-lg text-xs font-semibold ${
+                      tab === tb.id ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
+                                    : "text-slate-500 dark:text-slate-400"
+                    }`}>
+                    {tb.label}
+                  </button>
+                ))}
+              </div>
+
+              {tab === "upcoming" && (
+                <div className="mt-4 space-y-3">
+                  {bookings.length === 0 && (
+                    <div className="text-center py-16 text-sm text-slate-500 dark:text-slate-400">
+                      <CalendarIcon className="w-8 h-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
+                      {t.noUpcoming}
+                    </div>
+                  )}
+                  {bookings.map((b, i) => {
+                    const c = CLINICS.find((x) => x.id === b.clinicId) || CLINICS[0];
+                    return (
+                      <div key={b.id || i} className="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: BRAND }}>{fmtDay(b.date)}</p>
+                            <p className="font-semibold text-slate-900 dark:text-slate-100 mt-1">{c.name}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{specLabel(c.specialty, t)}</p>
+                            <div className="mt-2 flex items-center gap-3 text-xs text-slate-700 dark:text-slate-300">
+                              <span className="inline-flex items-center gap-1"><CalendarIcon className="w-3.5 h-3.5" /> {fmtDay(b.date)}</span>
+                              <span className="inline-flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {b.slot}</span>
+                            </div>
+                          </div>
+                          <button onClick={() => goClinic(c.id)}
+                            className="press text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+                            {t.view}
+                          </button>
+                        </div>
+                        <div className="mt-3 flex gap-2">
+                          <button onClick={() => onReschedule(b)}
+                            className="press flex-1 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+                            {t.reschedule}
+                          </button>
+                          <button onClick={() => setConfirmCancel(b)}
+                            className="press flex-1 py-2 rounded-xl text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40">
+                            {t.cancel}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {tab === "history" && (
+                <div className="mt-4 space-y-3">
+                  <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                    <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">{t.mar12}</p>
+                    <p className="font-semibold text-slate-900 dark:text-slate-100 mt-0.5">Cabinet Médical Plainpalais</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{t.checkupAt}</p>
+                    <div className="mt-2 flex items-center gap-1 text-amber-500 text-xs">
+                      {[1,2,3,4,5].map((n) => <Star key={n} className="w-3.5 h-3.5 fill-current" />)}
+                      <span className="text-slate-500 dark:text-slate-400 ml-1">{t.youRated}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <BottomSheet open={!!confirmCancel} onClose={() => setConfirmCancel(null)}>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-bold text-slate-900 dark:text-slate-100">{t.cancelTitle}</h3>
+                <button onClick={() => setConfirmCancel(null)} className="press">
+                  <XIcon className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                </button>
+              </div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{t.cancelSub}</p>
+              <div className="flex gap-2">
+                <button onClick={() => setConfirmCancel(null)}
+                  className="press flex-1 py-3 rounded-2xl text-sm font-bold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+                  {t.keepIt}
+                </button>
+                <button onClick={() => { onCancel(confirmCancel); setConfirmCancel(null); }}
+                  className="press flex-1 py-3 rounded-2xl text-sm font-bold text-white bg-red-500">
+                  {t.cancelYes}
+                </button>
+              </div>
+            </BottomSheet>
+          </div>
+        );
+      }
+
+      /* ─── Relatives ─── */
+      function RelativesScreen({ t }) {
+        const [relatives, setRelatives] = useState([{ name: "Mia Jerger", relation: t.child, next: "Dentist · Fri 15:30" }]);
+        const [adding, setAdding] = useState(false);
+        const [name, setName] = useState("");
+        const [rel, setRel] = useState(t.partner);
+        return (
+          <div className="screen-enter h-full overflow-y-auto noscroll pb-28">
+            <StatusBar />
+            <div className="px-5 pt-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{t.relatives}</h2>
+                <button onClick={() => setAdding(true)} className="press p-2 rounded-full text-white shadow-md" style={{ background: BRAND }}>
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t.relativesIntro}</p>
+              <div className="mt-5 space-y-3">
+                {relatives.map((r, i) => (
+                  <div key={i} className="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold" style={{ background: BRAND }}>
+                        {r.name.split(" ").map((x) => x[0]).join("")}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{r.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{r.relation}</p>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 rounded-lg p-2">{t.next}: {r.next}</p>
+                  </div>
+                ))}
+              </div>
+              <BottomSheet open={adding} onClose={() => setAdding(false)}>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100">{t.addRelative}</h3>
+                  <button onClick={() => setAdding(false)} className="press">
+                    <XIcon className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                  </button>
+                </div>
+                <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t.fullName}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900 text-sm mb-2 text-slate-900 dark:text-slate-100 placeholder:text-slate-400" />
+                <select value={rel} onChange={(e) => setRel(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900 text-sm mb-3 text-slate-900 dark:text-slate-100">
+                  <option>{t.partner}</option>
+                  <option>{t.child}</option>
+                  <option>{t.parent}</option>
+                  <option>{t.other}</option>
+                </select>
+                <button onClick={() => {
+                    if (!name.trim()) return;
+                    setRelatives((r) => [...r, { name, relation: rel, next: t.noUpcomingRel }]);
+                    setName(""); setAdding(false);
+                  }}
+                  className="press w-full py-3 rounded-2xl text-white text-sm font-bold shadow-md"
+                  style={{ background: BRAND }}>
+                  {t.addRelativeBtn}
+                </button>
+              </BottomSheet>
+            </div>
+          </div>
+        );
+      }
+
+      /* ─── Profile ─── */
+      function ProfileScreen({ t, lang, setLang, darkMode, setDarkMode, notifs, setNotifs, insurance, setInsurance, showToast, onLogout }) {
+        const [sheet, setSheet] = useState(null);
+        const INSURERS = ["CSS", "Helsana", "Swica", "Sanitas", "Assura", "Groupe Mutuel"];
+        const Row = ({ icon: IconC, label, right, onClick }) => (
+          <button onClick={onClick} className="press w-full flex items-center justify-between py-3 text-left">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                   style={{ background: darkMode ? BRAND_SOFT_DARK : BRAND_SOFT }}>
+                <IconC className="w-4 h-4" style={{ color: darkMode ? "#A5B4FC" : BRAND }} />
+              </div>
+              <span className="text-sm font-medium text-slate-800 dark:text-slate-200">{label}</span>
+            </div>
+            {right ?? <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-500" />}
+          </button>
+        );
+        return (
+          <div className="screen-enter h-full overflow-y-auto noscroll pb-28">
+            <StatusBar />
+            <div className="px-5 pt-2">
+              <h2 className="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{t.profile}</h2>
+              <div className="mt-4 flex items-center gap-4">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-md" style={{ background: BRAND }}>AJ</div>
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">Alex Jerger</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">alexanderjerger3@gmail.com</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Geneva, CH</p>
+                </div>
+              </div>
+              <div className="mt-5 p-1 bg-slate-50 dark:bg-slate-800 rounded-2xl divide-y divide-slate-100 dark:divide-slate-700">
+                <Row icon={Globe}       label={`${t.filterLanguage} · ${lang === "EN" ? "English" : lang === "FR" ? "Français" : "Deutsch"}`}
+                     onClick={() => setSheet("lang")} />
+                <Row icon={ShieldCheck} label={`${t.filterInsurance} · ${insurance}`}
+                     onClick={() => setSheet("ins")} />
+                <Row icon={Bell}        label={t.notifications} onClick={() => setSheet("notif")} />
+                <Row icon={Moon}        label={t.darkMode}
+                  onClick={() => setDarkMode((v)=>!v)}
+                  right={
+                    <span className={`w-11 h-6 rounded-full p-0.5 inline-flex items-center ${darkMode ? "" : "bg-slate-300"}`}
+                          style={darkMode ? { background: BRAND } : {}}>
+                      <span className={`block w-5 h-5 bg-white rounded-full shadow transition-transform ${darkMode ? "translate-x-5" : ""}`} />
+                    </span>
+                  } />
+                <Row icon={Share2} label={t.shareLOKKT}
+                     onClick={() => showToast(t.linkCopied)} />
+                <Row icon={LogOut} label={t.logOut} onClick={onLogout} />
+              </div>
+              <p className="text-[11px] text-center text-slate-400 dark:text-slate-500 mt-6">{t.brandTagline}</p>
+            </div>
+
+            <BottomSheet open={sheet === "lang"} onClose={() => setSheet(null)}>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-slate-900 dark:text-slate-100">{t.languagePick}</h3>
+                <button onClick={() => setSheet(null)} className="press"><XIcon className="w-5 h-5 text-slate-500" /></button>
+              </div>
+              <div className="space-y-1">
+                {[{ code:"EN", label:"English" }, { code:"FR", label:"Français" }, { code:"DE", label:"Deutsch" }].map((l) => (
+                  <button key={l.code}
+                    onClick={() => { setLang(l.code); setSheet(null); showToast(t.settingSaved); }}
+                    className={`press w-full flex items-center justify-between py-3 px-3 rounded-xl ${
+                      lang === l.code ? "text-white" : "text-slate-800 dark:text-slate-200"
+                    }`}
+                    style={lang === l.code ? { background: BRAND } : {}}>
+                    <span className="text-sm font-semibold">{l.label}</span>
+                    {lang === l.code && <Check className="w-4 h-4" />}
+                  </button>
+                ))}
+              </div>
+            </BottomSheet>
+
+            <BottomSheet open={sheet === "ins"} onClose={() => setSheet(null)}>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-slate-900 dark:text-slate-100">{t.insurancePick}</h3>
+                <button onClick={() => setSheet(null)} className="press"><XIcon className="w-5 h-5 text-slate-500" /></button>
+              </div>
+              <div className="space-y-1 max-h-72 overflow-y-auto noscroll">
+                {INSURERS.map((ins) => (
+                  <button key={ins}
+                    onClick={() => { setInsurance(ins); setSheet(null); showToast(t.settingSaved); }}
+                    className={`press w-full flex items-center justify-between py-3 px-3 rounded-xl ${
+                      insurance === ins ? "text-white" : "text-slate-800 dark:text-slate-200"
+                    }`}
+                    style={insurance === ins ? { background: BRAND } : {}}>
+                    <span className="text-sm font-semibold">{ins}</span>
+                    {insurance === ins && <Check className="w-4 h-4" />}
+                  </button>
+                ))}
+              </div>
+            </BottomSheet>
+
+            <BottomSheet open={sheet === "notif"} onClose={() => setSheet(null)}>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-slate-900 dark:text-slate-100">{t.notifPick}</h3>
+                <button onClick={() => setSheet(null)} className="press"><XIcon className="w-5 h-5 text-slate-500" /></button>
+              </div>
+              {[{ k:"appt", label: t.notifAppt }, { k:"promo", label: t.notifPromo }].map((row) => (
+                <div key={row.k} className="flex items-center justify-between py-3">
+                  <span className="text-sm text-slate-800 dark:text-slate-200">{row.label}</span>
+                  <button onClick={() => setNotifs({ ...notifs, [row.k]: !notifs[row.k] })}
+                    className={`w-11 h-6 rounded-full p-0.5 ${notifs[row.k] ? "" : "bg-slate-300"}`}
+                    style={notifs[row.k] ? { background: BRAND } : {}}>
+                    <span className={`block w-5 h-5 bg-white rounded-full shadow transition-transform ${notifs[row.k] ? "translate-x-5" : ""}`} />
+                  </button>
+                </div>
+              ))}
+              <button onClick={() => { setSheet(null); showToast(t.settingSaved); }}
+                className="press w-full py-3 rounded-2xl text-white text-sm font-bold mt-2"
+                style={{ background: BRAND }}>
+                {t.done}
+              </button>
+            </BottomSheet>
+          </div>
+        );
+      }
+
+      /* ─── Bottom tabs ─── */
+      function BottomTabs({ tab, setTab, setScreen, t }) {
+        const tabs = [
+          { id:"home",      label:t.tabHome,  icon:HomeIcon,     target:"home" },
+          { id:"appts",     label:t.tabAppts, icon:CalendarIcon, target:"appointments" },
+          { id:"relatives", label:t.tabRel,   icon:Users,        target:"relatives" },
+          { id:"profile",   label:t.tabProf,  icon:User,         target:"profile" },
+        ];
+        return (
+          <div className="absolute bottom-0 left-0 right-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-around px-2 py-2.5">
+              {tabs.map((tb) => {
+                const IconC = tb.icon;
+                const active = tab === tb.id;
+                return (
+                  <button key={tb.id} onClick={() => { setTab(tb.id); setScreen(tb.target); }}
+                    className="press flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg">
+                    <IconC className="w-5 h-5" style={{ color: active ? BRAND : "#94a3b8" }} />
+                    <span className="text-[10px] font-semibold" style={{ color: active ? BRAND : "#94a3b8" }}>{tb.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+
+      /* ─── Fake patient names for clinic-side dashboard ─── */
+      const PATIENT_NAMES = [
+        "Léa Moreau","Sofia Dubois","Marco Weber","Emma Rossi","Jonas Keller",
+        "Chloé Martin","Lukas Schmid","Isabelle Petit","Nicolas Favre","Clara Bernard",
+        "Tobias Huber","Julie Lambert","Pascal Girard","Nina Perret","Elena Conti",
+      ];
+      const patientForBooking = (b) => {
+        const h = hashStr((b.id || "") + b.clinicId + b.date + b.slot);
+        return PATIENT_NAMES[h % PATIENT_NAMES.length];
+      };
+
+      /* ─── Sign-in (role picker) ─── */
+      function SignInScreen({ t, lang, setLang, onPickRole }) {
+        return (
+          <div className="screen-enter flex flex-col h-full px-6 py-8 relative">
+            <div className="absolute top-4 right-4 flex gap-1 z-10">
+              {["EN","FR","DE"].map((l) => (
+                <button key={l} onClick={() => setLang(l)}
+                  className={`press text-[10px] font-bold px-2 py-1 rounded-md ${
+                    lang === l ? "text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                  }`} style={lang === l ? { background: BRAND } : {}}>
+                  {l}
+                </button>
+              ))}
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <div className="logo-float mb-6"><AppIcon size={88} /></div>
+              <p className="brand-wordmark text-3xl mb-3" style={{ color: BRAND }}>LOKKT</p>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight mt-3 text-center">{t.signInTitle}</h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 text-center">{t.signInSub}</p>
+            </div>
+            <div className="space-y-3 pb-2">
+              <button onClick={() => onPickRole("patient")}
+                className="press w-full p-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 flex items-center gap-4 text-left shadow-sm">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: BRAND }}>
+                  <User className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-slate-900 dark:text-slate-100">{t.roleP}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t.rolePDesc}</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-400" />
+              </button>
+              <button onClick={() => onPickRole("clinic")}
+                className="press w-full p-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 flex items-center gap-4 text-left shadow-sm">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 bg-slate-900 dark:bg-slate-100">
+                  <Building className="w-6 h-6 text-white dark:text-slate-900" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-slate-900 dark:text-slate-100">{t.roleC}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t.roleCDesc}</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      /* ─── Clinic sign-in (picks which clinic) ─── */
+      function ClinicSignInScreen({ t, onPickClinic, goBack }) {
+        return (
+          <div className="screen-enter flex flex-col h-full">
+            <StatusBar />
+            <div className="px-5 pt-2 pb-4 flex items-center gap-3">
+              <button onClick={goBack} className="press w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <ChevronLeft className="w-5 h-5 text-slate-700 dark:text-slate-200" />
+              </button>
+              <div className="min-w-0">
+                <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight truncate">{t.clinicPickTitle}</h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{t.clinicPickSub}</p>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 pb-6 space-y-2 noscroll">
+              {CLINICS.map((c) => (
+                <button key={c.id} onClick={() => onPickClinic(c.id)}
+                  className="press w-full p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center gap-3 text-left">
+                  <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center shrink-0">
+                    <Building className="w-5 h-5" style={{ color: BRAND }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm truncate">{c.name}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{c.specialty} · {c.addr}</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      /* ─── Clinic dashboard ─── */
+      function ClinicDashboardScreen({ clinicId, t, lang, setLang, bookings, blockedSet,
+                                       onCancelBooking, onToggleBlock, onSwitch, onLogout,
+                                       darkMode, setDarkMode }) {
+        const clinic = CLINICS.find((c) => c.id === clinicId);
+        const today  = useMemo(() => startOfDay(new Date()), []);
+        const todayKey = dateKey(today);
+        const myBookings = bookings.filter((b) => b.clinicId === clinicId);
+        const todays = myBookings.filter((b) => b.date === todayKey)
+                                 .sort((a,b) => a.slot.localeCompare(b.slot));
+        const upcoming = myBookings.filter((b) => b.date > todayKey)
+                                   .sort((a,b) => (a.date + a.slot).localeCompare(b.date + b.slot));
+        if (!clinic) return null;
+        const blockedKeyFor = (slot) => `${clinicId}|${todayKey}|${slot}`;
+
+        return (
+          <div className="screen-enter flex flex-col h-full">
+            <StatusBar />
+            <div className="px-5 pt-2 pb-3 flex items-center justify-between">
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: BRAND }}>{t.clinicDash}</p>
+                <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-tight truncate max-w-[240px]">
+                  {clinic.name}
+                </h1>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <button onClick={() => setDarkMode((v)=>!v)} className="press w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <Moon className="w-4 h-4 text-slate-600 dark:text-slate-200" />
+                </button>
+                <button onClick={onLogout} className="press w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <LogOut className="w-4 h-4 text-slate-600 dark:text-slate-200" />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-5 pb-10 noscroll">
+              <div className="p-4 rounded-2xl mb-5" style={{ background: BRAND }}>
+                <p className="text-white/70 text-[11px] font-semibold uppercase tracking-widest">{t.today}</p>
+                <p className="text-white text-2xl font-bold mt-1">{t.clinicBookingsNow(todays.length)}</p>
+                <p className="text-white/80 text-xs mt-1">{clinic.specialty} · {clinic.addr}</p>
+              </div>
+
+              <SectionHeader>{t.clinicTodaySchedule}</SectionHeader>
+              {todays.length === 0 && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 py-4">{t.clinicNoBookings}</p>
+              )}
+              <div className="space-y-2">
+                {todays.map((b) => (
+                  <div key={b.id || `${b.date}${b.slot}`}
+                       className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center gap-3">
+                    <div className="w-14 text-center shrink-0">
+                      <p className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">{b.slot}</p>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{patientForBooking(b)}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">{t.clinicPatient}</p>
+                    </div>
+                    <button onClick={() => onCancelBooking(b)}
+                            className="press text-[11px] font-semibold text-red-600 dark:text-red-400 px-2 py-1 rounded-md">
+                      {t.clinicCancelAppt}
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6">
+                <SectionHeader>{t.clinicOpenToday}</SectionHeader>
+                <div className="grid grid-cols-4 gap-2">
+                  {ALL_TIMES.map((slot) => {
+                    const isBooked = todays.some((b) => b.slot === slot);
+                    const isBlocked = blockedSet.has(blockedKeyFor(slot));
+                    return (
+                      <button key={slot}
+                        onClick={() => !isBooked && onToggleBlock(clinicId, todayKey, slot)}
+                        disabled={isBooked}
+                        className={`press rounded-xl py-2 text-xs font-semibold border flex flex-col items-center leading-tight ${
+                          isBooked ? "bg-slate-200 dark:bg-slate-700 text-slate-400 border-slate-200 dark:border-slate-600 cursor-not-allowed"
+                          : isBlocked ? "text-red-600 dark:text-red-300 border-red-200 dark:border-red-900"
+                          : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700"
+                        }`}
+                        style={isBlocked ? { background: "rgba(254,226,226,0.6)" } : {}}>
+                        <span>{slot}</span>
+                        {isBooked && <span className="text-[9px] opacity-70">✓</span>}
+                        {isBlocked && <span className="text-[9px] opacity-80">{t.clinicBlocked}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <SectionHeader>{t.clinicUpcoming}</SectionHeader>
+                {upcoming.length === 0 && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 py-4">{t.clinicNoUpcoming}</p>
+                )}
+                <div className="space-y-2">
+                  {upcoming.map((b) => {
+                    const d = new Date(b.date);
+                    return (
+                      <div key={b.id || `${b.date}${b.slot}`}
+                           className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center gap-3">
+                        <div className="w-14 shrink-0 text-center">
+                          <p className="text-[10px] font-semibold uppercase text-slate-500">{t.dayShort[d.getDay()]}</p>
+                          <p className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">{d.getDate()}</p>
+                          <p className="text-[10px] text-slate-500">{t.monthShort[d.getMonth()]}</p>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{patientForBooking(b)}</p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">{b.slot}</p>
+                        </div>
+                        <button onClick={() => onCancelBooking(b)}
+                                className="press text-[11px] font-semibold text-red-600 dark:text-red-400 px-2 py-1 rounded-md">
+                          {t.clinicCancelAppt}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <button onClick={onSwitch}
+                className="press w-full mt-7 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold">
+                {t.clinicSwitch}
+              </button>
+              <p className="text-[11px] text-center text-slate-400 dark:text-slate-500 mt-4">{t.brandTagline}</p>
+            </div>
+          </div>
+        );
+      }
+
+      /* ─── Main app ─── */
+      function LokktPatientDemo() {
+        const [role, setRole]                 = useState(null);   // null | "patient" | "clinic"
+        const [clinicUserId, setClinicUserId] = useState(null);   // which clinic is signed in
+        const [screen, setScreen]             = useState("home");
+        const [tab, setTab]                   = useState("home");
+        const [lang, setLang]                 = useState("EN");
+        const [query, setQuery]               = useState("");
+        const [activeClinic, setActiveClinic] = useState(null);
+        const [activeDate, setActiveDate]     = useState(null);
+        const [activeSlot, setActiveSlot]     = useState(null);
+        const [bookings, setBookings]         = useState([]);
+        const [blocked, setBlocked]           = useState(new Set()); // "clinicId|date|slot"
+        const [darkMode, setDarkMode]         = useState(false);
+        const [showSplash, setShowSplash]     = useState(true);
+        const [toast, setToast]               = useState(null);
+        const [notifs, setNotifs]             = useState({ appt:true, promo:false });
+        const [insurance, setInsurance]       = useState("CSS");
+
+        const t = I18N[lang];
+
+        const bookedSet = useMemo(() => {
+          const s = new Set();
+          bookings.forEach((b) => s.add(`${b.clinicId}|${b.date}|${b.slot}`));
+          blocked.forEach((k) => s.add(k));
+          return s;
+        }, [bookings, blocked]);
+
+        useEffect(() => {
+          if (darkMode) document.documentElement.classList.add("dark");
+          else document.documentElement.classList.remove("dark");
+        }, [darkMode]);
+
+        useEffect(() => {
+          const timer = setTimeout(() => setShowSplash(false), 1400);
+          return () => clearTimeout(timer);
+        }, []);
+
+        const showToast = (msg) => setToast(msg);
+        const goSearch  = () => setScreen("search");
+        const goClinic  = (id, date) => {
+          setActiveClinic(id);
+          setActiveDate(date || null);
+          setScreen("clinic");
+        };
+        const goConfirm = (id, date, slot) => {
+          setActiveClinic(id); setActiveSlot(slot); setActiveDate(date);
+          setBookings((b) => [{ id:`b-${Date.now()}`, clinicId:id, date:dateKey(date), slot }, ...b]);
+          setScreen("confirmed");
+        };
+        const goHome  = () => { setScreen("home"); setTab("home"); };
+        const goAppts = () => { setScreen("appointments"); setTab("appts"); };
+
+        const cancelBooking = (b) => {
+          setBookings((list) => list.filter((x) =>
+            (x.id || `${x.clinicId}|${x.date}|${x.slot}`) !== (b.id || `${b.clinicId}|${b.date}|${b.slot}`)
+          ));
+          showToast(t.apptCancelled);
+        };
+        const rescheduleBooking = (b) => {
+          setBookings((list) => list.filter((x) =>
+            (x.id || `${x.clinicId}|${x.date}|${x.slot}`) !== (b.id || `${b.clinicId}|${b.date}|${b.slot}`)
+          ));
+          setActiveClinic(b.clinicId);
+          setActiveDate(new Date(b.date));
+          setScreen("clinic");
+          showToast(t.rebooked);
+        };
+
+        const toggleBlock = (cid, date, slot) => {
+          const key = `${cid}|${date}|${slot}`;
+          setBlocked((prev) => {
+            const next = new Set(prev);
+            if (next.has(key)) { next.delete(key); showToast(t.clinicUnblockedToast); }
+            else               { next.add(key);    showToast(t.clinicBlockedToast); }
+            return next;
+          });
+        };
+
+        const logoutPatient = () => {
+          showToast(t.loggedOut);
+          setTimeout(() => {
+            setRole(null); setClinicUserId(null);
+            setScreen("home"); setTab("home");
+            setActiveClinic(null); setActiveDate(null); setActiveSlot(null);
+            setQuery("");
+          }, 400);
+        };
+        const logoutClinic = () => {
+          showToast(t.clinicSignedOut);
+          setTimeout(() => {
+            setRole(null); setClinicUserId(null);
+            setScreen("home"); setTab("home");
+          }, 400);
+        };
+
+        /* ─── Role gating ─── */
+        if (role === null) {
+          return (
+            <React.Fragment>
+              {showSplash && <Splash />}
+              <PhoneFrame>
+                <SignInScreen t={t} lang={lang} setLang={setLang}
+                  onPickRole={(r) => {
+                    setRole(r);
+                    if (r === "patient") { setScreen("home"); setTab("home"); }
+                  }} />
+                <Toast message={toast} onDone={() => setToast(null)} />
+              </PhoneFrame>
+            </React.Fragment>
+          );
+        }
+        if (role === "clinic" && !clinicUserId) {
+          return (
+            <PhoneFrame>
+              <ClinicSignInScreen t={t}
+                onPickClinic={(id) => setClinicUserId(id)}
+                goBack={() => setRole(null)} />
+              <Toast message={toast} onDone={() => setToast(null)} />
+            </PhoneFrame>
+          );
+        }
+        if (role === "clinic" && clinicUserId) {
+          return (
+            <PhoneFrame>
+              <ClinicDashboardScreen clinicId={clinicUserId} t={t} lang={lang} setLang={setLang}
+                bookings={bookings} blockedSet={blocked}
+                onCancelBooking={(b) => {
+                  setBookings((list) => list.filter((x) =>
+                    (x.id || `${x.clinicId}|${x.date}|${x.slot}`) !== (b.id || `${b.clinicId}|${b.date}|${b.slot}`)
+                  ));
+                  showToast(t.clinicApptCancelled);
+                }}
+                onToggleBlock={toggleBlock}
+                onSwitch={() => setClinicUserId(null)}
+                onLogout={logoutClinic}
+                darkMode={darkMode} setDarkMode={setDarkMode} />
+              <Toast message={toast} onDone={() => setToast(null)} />
+            </PhoneFrame>
+          );
+        }
+
+        const showTabs = ["home","appointments","relatives","profile"].includes(screen);
+
+        return (
+          <React.Fragment>
+            {showSplash && <Splash />}
+            <PhoneFrame>
+              {screen === "home" && (
+                <HomeScreen lang={lang} setLang={setLang}
+                            goSearch={goSearch} goClinic={(id)=>goClinic(id)}
+                            query={query} setQuery={setQuery}
+                            t={t} bookedSet={bookedSet} />
+              )}
+              {screen === "search" && (
+                <SearchScreen goClinic={(id)=>goClinic(id)} goBack={goHome}
+                              query={query} setQuery={setQuery}
+                              lang={lang} t={t} bookedSet={bookedSet} />
+              )}
+              {screen === "clinic" && (
+                <ClinicScreen clinicId={activeClinic} initialDate={activeDate}
+                              goBack={() => setScreen("search")}
+                              goConfirm={goConfirm}
+                              t={t} bookedSet={bookedSet} />
+              )}
+              {screen === "confirmed" && (
+                <ConfirmedScreen clinicId={activeClinic}
+                                 date={activeDate || new Date()}
+                                 slot={activeSlot}
+                                 goHome={goHome} goAppts={goAppts} t={t} />
+              )}
+              {screen === "appointments" && (
+                <AppointmentsScreen bookings={bookings}
+                                    onCancel={cancelBooking}
+                                    onReschedule={rescheduleBooking}
+                                    goClinic={(id)=>goClinic(id)} t={t} />
+              )}
+              {screen === "relatives" && <RelativesScreen t={t} />}
+              {screen === "profile" && (
+                <ProfileScreen t={t} lang={lang} setLang={setLang}
+                               darkMode={darkMode} setDarkMode={setDarkMode}
+                               notifs={notifs} setNotifs={setNotifs}
+                               insurance={insurance} setInsurance={setInsurance}
+                               showToast={showToast} onLogout={logoutPatient} />
+              )}
+              {showTabs && <BottomTabs tab={tab} setTab={setTab} setScreen={setScreen} t={t} />}
+              <Toast message={toast} onDone={() => setToast(null)} />
+            </PhoneFrame>
+          </React.Fragment>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<LokktPatientDemo />);
+    </script>
+  </body>
+</html>
